@@ -1,4 +1,4 @@
-// Register Service Worker for PWA Offline Capabilities
+// --- SERVICE WORKER REGISTRATION ---
 if ('serviceWorker' in navigator) {
     window.addEventListener('load', () => {
         navigator.serviceWorker.register('/sw.js')
@@ -7,7 +7,7 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Single-Page View Switching Engine with Browser History Back-Button Support
+// --- SINGLE-PAGE VIEW SWITCHING ENGINE ---
 function switchView(viewId, updateHistory = true) {
     document.querySelectorAll('.app-view').forEach(view => {
         view.classList.add('hidden');
@@ -41,7 +41,8 @@ window.addEventListener('popstate', (event) => {
     }
 });
 
-// Global Aviation Database with Country Flags
+
+// --- GLOBAL AVIATION DATABASE & DIRECTORY ---
 const aviationDatabase = [
     {
         continent: "North America",
@@ -233,9 +234,6 @@ function selectCountry(index) {
     renderAviationDirectory();
 }
 
-window.addEventListener('DOMContentLoaded', () => {
-    renderAviationDirectory();
-});
 
 // --- LIVE FLIGHT TRACKER ENGINE ---
 let flightTimer = null;
@@ -259,24 +257,27 @@ function initFlightTracker() {
             if (query) {
                 currentTrackedFlight.callsign = query.toUpperCase();
                 updateFlightUI();
+                
+                // Sync and focus radar map on searched flight (zoomed in closer for single aircraft tracking)
+                const radarFrame = document.getElementById('live-radar-frame');
+                if (radarFrame) {
+                    radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=7&icao=&sel=${encodeURIComponent(query)}`;
+                }
+
                 alert(`Now tracking flight / tail: ${currentTrackedFlight.callsign}`);
             }
         });
     }
 
-    // Start 30-second live update polling loop
     startFlightPolling();
-
-    // Listen for network state shifts to control live syncing vs offline caching
     window.addEventListener('online', handleNetworkChange);
     window.addEventListener('offline', handleNetworkChange);
     handleNetworkChange(); 
 }
 
 function startFlightPolling() {
-    if (flightTimer) clearInterval(flightTracker);
+    if (flightTimer) clearInterval(flightTimer);
 
-    // Poll every 30 seconds (30000 ms)
     flightTimer = setInterval(() => {
         if (navigator.onLine) {
             fetchLiveFlightData();
@@ -287,12 +288,10 @@ function startFlightPolling() {
 }
 
 function fetchLiveFlightData() {
-    // Simulated live telemetry shifts
     currentTrackedFlight.altitude += Math.floor(Math.random() * 200) - 100;
     currentTrackedFlight.groundSpeed += Math.floor(Math.random() * 10) - 5;
     
     updateFlightUI();
-    console.log(`[Live Telemetry Updated] ${currentTrackedFlight.callsign} at ${new Date().toLocaleTimeString()}`);
 }
 
 function handleNetworkChange() {
@@ -322,10 +321,6 @@ function updateFlightUI() {
     if (statusEl) statusEl.textContent = currentTrackedFlight.status;
 }
 
-// Hook into existing DOM load event
-document.addEventListener('DOMContentLoaded', () => {
-    initFlightTracker();
-});
 
 // --- AUTOMATED GLOBAL CLOCK & TIME ZONES ---
 const targetTimeZones = [
@@ -340,9 +335,8 @@ let currentTimeZoneIndex = 0;
 
 function initGlobalClocks() {
     updateClocks();
-    setInterval(updateClocks, 1000); // Tick every second
+    setInterval(updateClocks, 1000);
 
-    // Rotate displayed secondary time zone every 5 seconds automatically
     setInterval(() => {
         currentTimeZoneIndex = (currentTimeZoneIndex + 1) % targetTimeZones.length;
         updateRotatingTimeZone();
@@ -352,13 +346,11 @@ function initGlobalClocks() {
 function updateClocks() {
     const now = new Date();
 
-    // Update UTC Clock
     const utcEl = document.getElementById('header-utc-clock');
     if (utcEl) {
         utcEl.textContent = now.toLocaleTimeString('en-US', { timeZone: 'UTC', hour12: false }) + " UTC";
     }
 
-    // Update Rotating Time Zone Widget
     updateRotatingTimeZone(now);
 }
 
@@ -372,8 +364,7 @@ function updateRotatingTimeZone(now = new Date()) {
 }
 
 
-// --- AUTOMATED 10-DAY WEATHER FORECAST WIDGET (No API Key Required) ---
-// Coordinates for major hubs (Farnborough/London by default, rotates or tracks selected search)
+// --- AUTOMATED 10-DAY WEATHER FORECAST WIDGET ---
 const weatherLocations = [
     { name: "London / Farnborough (EGLF)", lat: 51.275, lon: -0.776 },
     { name: "New York (TEB / JFK)", lat: 40.7128, lon: -74.0060 },
@@ -386,7 +377,6 @@ let currentWeatherLocationIndex = 0;
 async function initAutomatedWeather() {
     fetchWeatherForCurrentLocation();
 
-    // Automatically cycle to next global aviation hub weather every 10 seconds
     setInterval(() => {
         currentWeatherLocationIndex = (currentWeatherLocationIndex + 1) % weatherLocations.length;
         fetchWeatherForCurrentLocation();
@@ -399,7 +389,6 @@ async function fetchWeatherForCurrentLocation() {
     if (!container) return;
 
     try {
-        // Using Open-Meteo free API (No API key, highly reliable, automated 10-day forecast)
         const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`);
         const data = await response.json();
 
@@ -418,8 +407,7 @@ async function fetchWeatherForCurrentLocation() {
                 <div class="grid grid-cols-5 gap-2 text-center">
         `;
 
-        // Render upcoming days automatically from API response
-        for (let i = 0; i < 5; i++) { // Showing 5-day columns to fit neatly, scrollable for 10
+        for (let i = 0; i < 5; i++) {
             const date = new Date(data.daily.time[i]).toLocaleDateString('en-US', { weekday: 'short' });
             const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
             const minTemp = Math.round(data.daily.temperature_2m_min[i]);
@@ -442,56 +430,11 @@ async function fetchWeatherForCurrentLocation() {
     }
 }
 
-// Hook into DOM initialization
+
+// --- INITIALIZATION HOOK ---
 document.addEventListener('DOMContentLoaded', () => {
+    renderAviationDirectory();
+    initFlightTracker();
     initGlobalClocks();
     initAutomatedWeather();
 });
-
-To bring a live flight radar map directly into the bottom of your home view, we can embed a live interactive aviation radar feed alongside your telemetry widgets.
-Here is how you can update your index.html and js/app.js to feature a fully responsive, sleek flight radar right on your dashboard.
-1. Update Your Home View in index.html
-Add this section right below your existing flight tracker widget on the home view. It includes a sleek container for a live interactive radar map view (using free global ADS-B exchange tracking feeds or embedded map tiles):
-<!-- LIVE FLIGHT RADAR SECTION -->
-<div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 md:p-8 space-y-4 shadow-2xl mt-6">
-    <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
-        <div class="flex items-center space-x-3">
-            <div class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></div>
-            <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Global Business Aviation Live Radar</h2>
-        </div>
-        <div class="text-xs text-slate-400">
-            Real-time ADS-B Airspace Traffic Feed
-        </div>
-    </div>
-    
-    <!-- Interactive Radar Map Container -->
-    <div class="relative w-full h-96 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
-        <!-- Live Map Embed / Interactive Radar View -->
-        <iframe id="live-radar-frame" src="https://globe.adsbexchange.com/?zoom=5&lat=51.275&lon=-0.776" class="w-full h-full border-0 filter invert hue-rotate-180 contrast-125 opacity-85"></iframe>
-        
-        <!-- Radar Overlay Badge -->
-        <div class="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-800 px-4 py-2 rounded-xl text-[11px] text-slate-300 flex items-center space-x-3 shadow-lg">
-            <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-            <span>Active Sector: European & North American Business Jets</span>
-        </div>
-    </div>
-</div>
-
-2. Update js/app.js to Sync the Radar with Your Searched Flight
-To make the radar interactive with your search bar so that when you type a tail number (like N750EX) and click Track, the live map updates to focus on that aircraft, append or update this small integration function in your js/app.js:
-// --- RADAR SYNC EXTENSION ---
-// Add this inside your existing initFlightTracker or search click listener
-const originalTrackButtonListener = document.getElementById('track-btn');
-if (originalTrackButtonListener) {
-    originalTrackButtonListener.addEventListener('click', () => {
-        const query = document.getElementById('flight-search-input').value.trim();
-        if (query) {
-            const radarFrame = document.getElementById('live-radar-frame');
-            if (radarFrame) {
-                // Automatically update ADS-B Exchange query parameter to focus on the searched callsign/tail
-                radarFrame.src = `https://globe.adsbexchange.com/?icao=&sel=${encodeURIComponent(query)}`;
-            }
-        }
-    });
-}
-
