@@ -1,20 +1,20 @@
 /**
  * SKYLEVEL AVIATION - Progressive Web App Service Worker
- * Version: 1.1.0
+ * Version: 2.0.0
  */
 
 const CACHE_NAME = 'skylevel-cache-v2';
 const DYNAMIC_CACHE_NAME = 'skylevel-dynamic-v2';
 
 // Critical core assets required for offline app shell execution
+// Note: Only list assets that DEFINITELY exist on your web server!
 const STATIC_ASSETS = [
-  '/',
-  '/index.html',
-  '/css/style.css',
-  '/js/data.js',
-  '/js/app.js',
-  '/manifest.json',
-  '/favicon.ico'
+  './',
+  './index.html',
+  './app.js',
+  './manifest.json',
+  './favicon.ico',
+  'https://cdn.tailwindcss.com' // Pre-cache Tailwind CDN for offline UI rendering
 ];
 
 /* ==========================================================================
@@ -62,12 +62,10 @@ self.addEventListener('fetch', (event) => {
   if (!url.protocol.startsWith('http')) return;
 
   // STRATEGY 1: Network-First Strategy for Flight Data & APIs
-  // Intercepts ADS-B Exchange, weather APIs, or local flight data queries
   if (isFlightDataRequest(request.url)) {
     event.respondWith(
       fetch(request)
         .then((networkResponse) => {
-          // If network fetch succeeds, cache a copy dynamically and return fresh data
           if (networkResponse && networkResponse.status === 200) {
             const responseToCache = networkResponse.clone();
             caches.open(DYNAMIC_CACHE_NAME).then((cache) => {
@@ -77,13 +75,11 @@ self.addEventListener('fetch', (event) => {
           return networkResponse;
         })
         .catch(() => {
-          // Network failure / Offline: Fall back to last cached telemetry data
           console.warn('[Service Worker] Offline: Serving cached flight data for', request.url);
           return caches.match(request).then((cachedResponse) => {
             if (cachedResponse) {
               return cachedResponse;
             }
-            // Fallback response if no cache exists yet
             return new Response(
               JSON.stringify({
                 offline: true,
@@ -97,7 +93,7 @@ self.addEventListener('fetch', (event) => {
     return;
   }
 
-  // STRATEGY 2: Cache-First Strategy for Static Local Assets
+  // STRATEGY 2: Cache-First Strategy for Static Local Assets & Tailwind CDN
   if (isStaticAsset(request.url)) {
     event.respondWith(
       caches.match(request).then((cachedResponse) => {
@@ -105,10 +101,12 @@ self.addEventListener('fetch', (event) => {
           return cachedResponse;
         }
         return fetch(request).then((networkResponse) => {
-          return caches.open(CACHE_NAME).then((cache) => {
-            cache.put(request, networkResponse.clone());
-            return networkResponse;
-          });
+          if (networkResponse && networkResponse.status === 200) {
+            caches.open(CACHE_NAME).then((cache) => {
+              cache.put(request, networkResponse.clone());
+            });
+          }
+          return networkResponse;
         });
       })
     );
@@ -127,7 +125,7 @@ self.addEventListener('fetch', (event) => {
         return networkResponse;
       }).catch(() => {
         if (request.mode === 'navigate') {
-          return caches.match('/index.html');
+          return caches.match('./index.html') || caches.match('/');
         }
       });
       return cachedResponse || fetchPromise;
@@ -141,7 +139,6 @@ self.addEventListener('fetch', (event) => {
 function isFlightDataRequest(url) {
   return url.includes('adsbexchange.com') ||
          url.includes('/api/flights') ||
-         url.includes('data.js') ||
          url.includes('weather');
 }
 
@@ -149,6 +146,6 @@ function isFlightDataRequest(url) {
  * Helper to identify static local assets
  */
 function isStaticAsset(url) {
-  return STATIC_ASSETS.some((asset) => url.endsWith(asset)) ||
+  return url.includes('cdn.tailwindcss.com') ||
          /\.(css|js|png|jpg|jpeg|svg|ico|woff2?)$/i.test(url);
 }
