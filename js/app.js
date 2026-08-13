@@ -9,18 +9,15 @@ if ('serviceWorker' in navigator) {
 
 // Single-Page View Switching Engine
 function switchView(viewId) {
-    // Hide all view sections
     document.querySelectorAll('.app-view').forEach(view => {
         view.classList.add('hidden');
     });
 
-    // Show the selected target view
     const targetView = document.getElementById(`view-${viewId}`);
     if (targetView) {
         targetView.classList.remove('hidden');
     }
 
-    // Update active and inactive styling on navigation buttons
     document.querySelectorAll('.nav-link').forEach(btn => {
         if (btn.getAttribute('data-target') === viewId) {
             btn.classList.remove('text-slate-400');
@@ -31,10 +28,12 @@ function switchView(viewId) {
         }
     });
 }
+
 // Global Private Aviation Database (Continents -> Countries -> Cities)
 const aviationDatabase = [
     {
         continent: "North America",
+        id: "na",
         countries: [
             {
                 name: "United States",
@@ -56,6 +55,7 @@ const aviationDatabase = [
     },
     {
         continent: "Europe",
+        id: "eu",
         countries: [
             {
                 name: "United Kingdom",
@@ -81,6 +81,7 @@ const aviationDatabase = [
     },
     {
         continent: "Asia",
+        id: "as",
         countries: [
             {
                 name: "United Arab Emirates",
@@ -104,6 +105,7 @@ const aviationDatabase = [
     },
     {
         continent: "Oceania",
+        id: "oc",
         countries: [
             {
                 name: "Australia",
@@ -116,6 +118,7 @@ const aviationDatabase = [
     },
     {
         continent: "South America",
+        id: "sa",
         countries: [
             {
                 name: "Brazil",
@@ -127,6 +130,7 @@ const aviationDatabase = [
     },
     {
         continent: "Africa",
+        id: "af",
         countries: [
             {
                 name: "South Africa",
@@ -138,38 +142,81 @@ const aviationDatabase = [
     }
 ];
 
-// Function to render the global database into your Catering/Explore views
+let selectedContinentIndex = null;
+let selectedCountryIndex = null;
+
+// Render uniform interactive directory
 function renderAviationDirectory() {
     const container = document.getElementById('catering-content-list');
     if (!container) return;
 
-    let html = '';
-    aviationDatabase.forEach(cont => {
-        html += `<div class="mb-8 bg-slate-900/60 border border-slate-800 rounded-2xl p-6 shadow-xl">`;
-        html += `<h3 class="text-2xl font-bold text-amber-400 mb-4">${cont.continent}</h3>`;
-        
-        cont.countries.forEach(country => {
-            html += `<div class="ml-4 mb-4">`;
-            html += `<h4 class="text-lg font-semibold text-slate-200 mb-2">${country.name}</h4>`;
-            html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
-            
-            country.cities.forEach(city => {
-                html += `<div class="bg-slate-950/80 border border-slate-800/80 p-4 rounded-xl">`;
-                html += `<h5 class="font-bold text-amber-300 mb-1">${city.name}</h5>`;
-                html += `<p class="text-xs text-slate-400 mb-2">Key FBOs / Airports:</p>`;
-                html += `<ul class="text-xs space-y-1 text-slate-300">`;
-                city.hubs.forEach(hub => {
-                    html += `<li class="flex items-center space-x-1"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span><span>${hub}</span></li>`;
-                });
-                html += `</ul></div>`;
-            });
-            
-            html += `</div></div>`;
-        });
-        html += `</div>`;
+    let html = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+    
+    // Step 1: Render Uniform Continent Buttons
+    aviationDatabase.forEach((cont, cIndex) => {
+        const isSelected = selectedContinentIndex === cIndex;
+        html += `
+            <button onclick="selectContinent(${cIndex})" class="p-4 rounded-xl border text-left transition font-semibold flex justify-between items-center ${isSelected ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg' : 'bg-slate-900/80 border-slate-800 text-slate-200 hover:border-slate-700'}">
+                <span>${cont.continent}</span>
+                <span class="text-xs px-2 py-1 rounded ${isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-amber-400'}">${cont.countries.length} Countries</span>
+            </button>
+        `;
     });
+    html += `</div>`;
+
+    // Step 2: Render Countries for Selected Continent
+    if (selectedContinentIndex !== null) {
+        const activeContinent = aviationDatabase[selectedContinentIndex];
+        html += `<div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-4 mb-6">`;
+        html += `<h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">${activeContinent.continent} — Select Country</h3>`;
+        html += `<div class="flex flex-wrap gap-3">`;
+
+        activeContinent.countries.forEach((country, coIndex) => {
+            const isCountrySelected = selectedCountryIndex === coIndex;
+            html += `
+                <button onclick="selectCountry(${coIndex})" class="px-5 py-2.5 rounded-xl border text-sm font-medium transition ${isCountrySelected ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow' : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700'}">
+                    ${country.name}
+                </button>
+            `;
+        });
+        html += `</div></div>`;
+    }
+
+    // Step 3: Render Cities & Hubs for Selected Country
+    if (selectedContinentIndex !== null && selectedCountryIndex !== null) {
+        const activeCountry = aviationDatabase[selectedContinentIndex].countries[selectedCountryIndex];
+        html += `<div class="bg-slate-950/80 border border-slate-800 p-6 rounded-2xl space-y-4">`;
+        html += `<h3 class="text-lg font-semibold text-amber-300">${activeCountry.name} — Major Private Aviation Hubs</h3>`;
+        html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
+
+        activeCountry.cities.forEach(city => {
+            html += `
+                <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl space-y-2">
+                    <h4 class="font-bold text-amber-400 text-base">${city.name}</h4>
+                    <p class="text-xs text-slate-400 uppercase tracking-wider">Handling Hubs / FBOs:</p>
+                    <ul class="text-xs space-y-1 text-slate-300">
+            `;
+            city.hubs.forEach(hub => {
+                html += `<li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span><span>${hub}</span></li>`;
+            });
+            html += `</ul></div>`;
+        });
+
+        html += `</div></div>`;
+    }
 
     container.innerHTML = html;
+}
+
+function selectContinent(index) {
+    selectedContinentIndex = index;
+    selectedCountryIndex = null; // Reset country selection when changing continent
+    renderAviationDirectory();
+}
+
+function selectCountry(index) {
+    selectedCountryIndex = index;
+    renderAviationDirectory();
 }
 
 // Auto-run directory builder when page loads
