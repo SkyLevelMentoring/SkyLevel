@@ -1,4 +1,4 @@
-/* --- RESET & BASE STYLES --- */
+/* --- BASE STYLES --- */
 *, *::before, *::after {
     box-sizing: border-box;
     margin: 0;
@@ -8,8 +8,8 @@
 body {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
     -webkit-font-smoothing: antialiased;
-    background-color: #0b1220; /* Deep Dark Blue */
-    color: #f1f5f9; /* Off White */
+    background-color: #0b1220;
+    color: #f1f5f9;
     line-height: 1.5;
     overflow-x: hidden;
     position: relative;
@@ -17,14 +17,13 @@ body {
 }
 
 /* --- HERO BACKGROUND & MOVEMENT --- */
-/* This container holds the animated background image */
 .hero-background {
     position: fixed;
     top: 0;
     left: 0;
     width: 100%;
     height: 100%;
-    z-index: -1; /* Pushes image behind all content */
+    z-index: -1;
     overflow: hidden;
 }
 
@@ -35,19 +34,13 @@ body {
     left: 0;
     width: 100%;
     height: 100%;
-    
-    /* Replace this URL with your own high-quality private jet image */
-    /* For best results, use a wide, landscape image (e.g., 1920x1080) */
     background-image: url('https://images.unsplash.com/photo-1605749135366-6406b2261837?q=80&w=1920&auto=format&fit=crop');
     background-size: cover;
     background-position: center;
     background-repeat: no-repeat;
-    
-    /* Ken Burns Slow Zoom Effect */
     animation: subtleZoom 20s ease-in-out infinite alternate;
 }
 
-/* Dark Overlay to make text readable */
 .hero-background::after {
     content: '';
     position: absolute;
@@ -63,146 +56,6 @@ body {
     100% { transform: scale(1.1); }
 }
 
-
-/* --- LAYOUT & UTILITIES --- */
-.sticky-header {
-    position: sticky;
-    top: 0;
-    z-index: 50;
-    backdrop-filter: blur(12px);
-    -webkit-backdrop-filter: blur(12px);
-    background-color: rgba(15, 23, 42, 0.8); /* Semi-transparent dark slate */
-    border-bottom: 1px solid rgba(148, 163, 184, 0.1);
-}
-
-.container {
-    max-width: 1280px;
-    margin: 0 auto;
-    padding: 0 1rem;
-}
-
-.flex-between {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    height: 4rem; /* 64px */
-}
-
-.main-content {
-    padding: 2rem 0;
-}
-
 .hidden {
     display: none !important;
-}
-
-/* --- TYPOGRAPHY & BRANDING --- */
-.logo-text {
-    font-size: 1.25rem;
-    font-weight: 700;
-    letter-spacing: 0.05em;
-    color: #fbbf24; /* Amber Yellow */
-}
-
-.hero-headline {
-    font-size: 2.5rem;
-    font-weight: 800;
-    letter-spacing: -0.025em;
-    margin-bottom: 1rem;
-    line-height: 1.1;
-}
-
-@media (min-width: 768px) {
-    .hero-headline { font-size: 3.75rem; }
-}
-
-.highlight {
-    color: #fbbf24; /* Amber Yellow */
-}
-
-.text-lg { font-size: 1.125rem; }
-.text-slate-400 { color: #94a3b8; }
-
-
-/* --- NAVIGATION --- */
-.nav-desktop {
-    display: none;
-}
-
-@media (min-width: 768px) {
-    .nav-desktop {
-        display: flex;
-        gap: 2rem; /* space-x-8 */
-    }
-}
-
-.nav-link {
-    background: none;
-    border: none;
-    font-size: 0.875rem; /* text-sm */
-    font-weight: 500;
-    cursor: pointer;
-    transition: color 0.2s ease;
-    color: #94a3b8; /* Default inactive color */
-}
-
-.nav-link:hover {
-    color: #fde68a; /* Lighter Amber on hover */
-}
-
-.nav-link.active {
-    color: #fbbf24; /* Active Amber */
-}
-
-
-/* --- VIEW SECTIONS --- */
-.app-view {
-    animation: fadeIn 0.4s ease-in-out;
-}
-
-@keyframes fadeIn {
-    from { opacity: 0; transform: translateY(10px); }
-    to { opacity: 1; transform: translateY(0); }
-}
-
-.hero-section {
-    text-align: center;
-    padding: 6rem 0; /* py-16 */
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 1rem;
-}
-
-.hero-description {
-    max-width: 42rem; /* max-w-2xl */
-    margin-bottom: 1.5rem;
-}
-
-.btn-primary {
-    background-color: #d97706; /* Amber 600 */
-    color: #0b1220;
-    font-weight: 600;
-    padding: 0.75rem 1.5rem;
-    border-radius: 0.75rem; /* rounded-xl */
-    border: none;
-    cursor: pointer;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
-    transition: background-color 0.2s ease;
-}
-
-.btn-primary:hover {
-    background-color: #f59e0b; /* Amber 500 */
-}
-
-.inner-view {
-    display: flex;
-    flex-direction: column;
-    gap: 1.5rem;
-}
-
-.view-title {
-    font-size: 1.5rem;
-    font-weight: 700;
-    color: #fbbf24;
 }
