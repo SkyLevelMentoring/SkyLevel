@@ -12,13 +12,19 @@
     <!-- Top Navigation / Header -->
     <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
+            <!-- Brand / Logo Area -->
             <div class="flex items-center space-x-3">
                 <div id="network-status-indicator" class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                <h1 class="text-base font-extrabold tracking-tight text-amber-400">SKYLEVEL</h1>
+                <!-- Custom SL ✈️ Logo Badge -->
+                <div class="flex items-center space-x-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl shadow-inner">
+                    <span class="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded-lg text-xs tracking-wider shadow">SL</span>
+                    <span class="text-amber-400 text-xs animate-pulse">✈️</span>
+                </div>
+                <h1 class="text-base font-extrabold tracking-tight text-slate-100">SKYLEVEL</h1>
                 <span id="network-status-text" class="text-xs text-slate-400 hidden sm:inline">Live Updates Active</span>
             </div>
             
-            <!-- Main Navigation Links with Catering & Community added back -->
+            <!-- Main Navigation Links -->
             <nav class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto max-w-full pb-1 md:pb-0">
                 <button onclick="switchView('home')" data-target="home" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-amber-400 bg-slate-800/60 border border-slate-700">Home</button>
                 <button onclick="switchView('directory')" data-target="directory" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Directory</button>
@@ -40,12 +46,29 @@
 
         <!-- ================= VIEW: HOME ================= -->
         <div id="view-home" class="app-view space-y-8">
+            <!-- Hero Banner matching user interface -->
+            <div class="bg-gradient-to-b from-slate-900/80 to-slate-950 border border-slate-800/80 rounded-3xl p-8 md:p-16 text-center space-y-6 shadow-2xl">
+                <div class="inline-flex items-center space-x-2 bg-slate-900 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-bold text-amber-400">
+                    <span>✨</span>
+                    <span class="uppercase tracking-widest">Premier Private Aviation Workspace</span>
+                </div>
+                <h2 class="text-4xl md:text-6xl font-black text-slate-100 tracking-tight">SKYLEVEL</h2>
+                <p class="text-lg md:text-xl font-medium text-amber-400/90 tracking-wide">Elevate Your Aviation Workflow</p>
+                <p class="text-xs md:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">
+                    The ultimate ecosystem engineered exclusively for private aviation crews, corporate flight attendants, captains, and operators worldwide.
+                </p>
+                <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
+                    <button onclick="switchView('catering')" class="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition">Explore Catering</button>
+                    <button onclick="switchView('community')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-extrabold text-xs rounded-xl shadow-lg transition">Join Community</button>
+                </div>
+            </div>
+
             <!-- Top Hero Banner / Flight Tracker Card -->
             <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
                     <div>
                         <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">Live Telemetry Feed</span>
-                        <h2 id="tracker-route" class="text-xl md:text-2xl font-extrabold text-slate-100 tracking-tight mt-1">N750EX : EGLF ✈️ LSGG</h2>
+                        <h3 id="tracker-route" class="text-xl md:text-2xl font-extrabold text-slate-100 tracking-tight mt-1">N750EX : EGLF ✈️ LSGG</h3>
                     </div>
                     <div class="flex items-center space-x-3 w-full md:w-auto">
                         <input type="text" id="flight-search-input" placeholder="Search Tail / Callsign (e.g. N750EX)" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-400 w-full md:w-64">
@@ -79,7 +102,7 @@
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
                     <div class="flex items-center space-x-3">
                         <div class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></div>
-                        <h2 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Global Business Aviation Live Radar</h2>
+                        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Global Business Aviation Live Radar</h3>
                     </div>
                     <div class="text-xs text-slate-400">Real-time ADS-B Airspace Traffic Feed</div>
                 </div>
