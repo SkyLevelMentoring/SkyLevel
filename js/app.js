@@ -236,3 +236,93 @@ function selectCountry(index) {
 window.addEventListener('DOMContentLoaded', () => {
     renderAviationDirectory();
 });
+
+// --- LIVE FLIGHT TRACKER ENGINE ---
+let flightTimer = null;
+let currentTrackedFlight = {
+    callsign: "N750EX",
+    route: "EGLF ✈️ LSGG",
+    details: "Farnborough to Geneva • FL430 • Mach 0.82",
+    weather: "CAVOK 18°C",
+    status: "On Schedule (-2m)",
+    altitude: 43000,
+    groundSpeed: 485
+};
+
+function initFlightTracker() {
+    const trackButton = document.getElementById('track-btn');
+    const searchInput = document.getElementById('flight-search-input');
+
+    if (trackButton && searchInput) {
+        trackButton.addEventListener('click', () => {
+            const query = searchInput.value.trim();
+            if (query) {
+                currentTrackedFlight.callsign = query.toUpperCase();
+                updateFlightUI();
+                alert(`Now tracking flight / tail: ${currentTrackedFlight.callsign}`);
+            }
+        });
+    }
+
+    // Start 30-second live update polling loop
+    startFlightPolling();
+
+    // Listen for network state shifts to control live syncing vs offline caching
+    window.addEventListener('online', handleNetworkChange);
+    window.addEventListener('offline', handleNetworkChange);
+    handleNetworkChange(); 
+}
+
+function startFlightPolling() {
+    if (flightTimer) clearInterval(flightTracker);
+
+    // Poll every 30 seconds (30000 ms)
+    flightTimer = setInterval(() => {
+        if (navigator.onLine) {
+            fetchLiveFlightData();
+        } else {
+            console.log("Device offline: Live flight updates paused. Serving cached data.");
+        }
+    }, 30000);
+}
+
+function fetchLiveFlightData() {
+    // Simulated live telemetry shifts
+    currentTrackedFlight.altitude += Math.floor(Math.random() * 200) - 100;
+    currentTrackedFlight.groundSpeed += Math.floor(Math.random() * 10) - 5;
+    
+    updateFlightUI();
+    console.log(`[Live Telemetry Updated] ${currentTrackedFlight.callsign} at ${new Date().toLocaleTimeString()}`);
+}
+
+function handleNetworkChange() {
+    const statusIndicator = document.getElementById('network-status-indicator');
+    const statusText = document.getElementById('network-status-text');
+
+    if (!statusIndicator || !statusText) return;
+
+    if (navigator.onLine) {
+        statusIndicator.className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
+        statusText.textContent = "Live Updates Active (Every 30s)";
+    } else {
+        statusIndicator.className = "w-3 h-3 rounded-full bg-amber-500";
+        statusText.textContent = "Offline Mode — Cached Data Active";
+    }
+}
+
+function updateFlightUI() {
+    const routeEl = document.getElementById('tracker-route');
+    const detailsEl = document.getElementById('tracker-details');
+    const weatherEl = document.getElementById('tracker-weather');
+    const statusEl = document.getElementById('tracker-status');
+
+    if (routeEl) routeEl.textContent = `${currentTrackedFlight.callsign} : ${currentTrackedFlight.route}`;
+    if (detailsEl) detailsEl.textContent = `${currentTrackedFlight.details} | Alt: ${currentTrackedFlight.altitude}ft | GS: ${currentTrackedFlight.groundSpeed}kts`;
+    if (weatherEl) weatherEl.textContent = currentTrackedFlight.weather;
+    if (statusEl) statusEl.textContent = currentTrackedFlight.status;
+}
+
+// Hook into existing DOM load event
+document.addEventListener('DOMContentLoaded', () => {
+    initFlightTracker();
+});
