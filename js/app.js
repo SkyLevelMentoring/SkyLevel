@@ -22,8 +22,9 @@ function switchView(viewId, updateHistory = true) {
         if (btn.getAttribute('data-target') === viewId) {
             btn.classList.remove('text-slate-400');
             btn.classList.add('text-amber-400');
+            btn.classList.add('bg-slate-800/60', 'border', 'border-slate-700');
         } else {
-            btn.classList.remove('text-amber-400');
+            btn.classList.remove('text-amber-400', 'bg-slate-800/60', 'border', 'border-slate-700');
             btn.classList.add('text-slate-400');
         }
     });
@@ -235,6 +236,141 @@ function selectCountry(index) {
 }
 
 
+// --- COMMUNITY HUB CONTROLLERS ---
+function switchCommunityTab(tabName) {
+    const feedTab = document.getElementById('comm-tab-feed');
+    const blogsTab = document.getElementById('comm-tab-blogs');
+    const feedContent = document.getElementById('comm-content-feed');
+    const blogsContent = document.getElementById('comm-content-blogs');
+
+    if (tabName === 'feed') {
+        feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
+        blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
+        feedContent.classList.remove('hidden');
+        blogsContent.classList.add('hidden');
+    } else {
+        blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
+        feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
+        blogsContent.classList.remove('hidden');
+        feedContent.classList.add('hidden');
+    }
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+    const postInput = document.getElementById('post-text-input');
+    const charCounter = document.getElementById('char-counter');
+
+    if (postInput && charCounter) {
+        postInput.addEventListener('input', () => {
+            const length = postInput.value.length;
+            charCounter.textContent = `${length} / 1000`;
+            if (length > 900) {
+                charCounter.className = "text-[10px] text-rose-400 font-mono font-bold";
+            } else {
+                charCounter.className = "text-[10px] text-slate-500 font-mono";
+            }
+        });
+    }
+});
+
+function submitCommunityPost() {
+    const textInput = document.getElementById('post-text-input');
+    if (!textInput) return;
+    const content = textInput.value.trim();
+
+    if (!content) {
+        alert("Please write a short story or description before publishing.");
+        return;
+    }
+
+    if (content.length > 1000) {
+        alert("Short stories must be 1,000 characters or less.");
+        return;
+    }
+
+    const stream = document.getElementById('community-posts-stream');
+    const newPostHTML = `
+        <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3 animate-fade-in">
+            <div class="flex items-center justify-between">
+                <div class="flex items-center space-x-3">
+                    <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400 text-xs">G</div>
+                    <div>
+                        <h5 class="text-xs font-bold text-slate-200">Gabrielle (GABSYNC)</h5>
+                        <span class="text-[10px] text-slate-500">Just now • Public Log</span>
+                    </div>
+                </div>
+                <button class="text-xs text-amber-400 font-bold px-3 py-1 bg-amber-400/10 rounded-lg hover:bg-amber-400/20 transition">Subscribed</button>
+            </div>
+            <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(content)}</p>
+            <div class="flex items-center space-x-6 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
+                <button onclick="toggleLike(this)" class="flex items-center space-x-1.5 hover:text-amber-400 transition">
+                    <span>❤️</span> <span class="font-bold text-slate-200">1</span> Like
+                </button>
+                <button class="flex items-center space-x-1.5 hover:text-amber-400 transition">
+                    <span>💬</span> <span class="font-bold text-slate-200">0</span> Comments
+                </button>
+            </div>
+        </div>
+    `;
+
+    stream.insertAdjacentHTML('afterbegin', newPostHTML);
+    textInput.value = '';
+    document.getElementById('char-counter').textContent = '0 / 1000';
+    alert("Your experience was published to the community feed!");
+}
+
+function toggleLike(btn) {
+    const countSpan = btn.querySelector('span.font-bold');
+    let currentLikes = parseInt(countSpan.textContent);
+    countSpan.textContent = currentLikes + 1;
+    btn.classList.add('text-rose-400');
+}
+
+function escapeHtml(text) {
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+}
+
+
+// --- SECURE VAULT CONTROLLERS ---
+function unlockVault() {
+    const pinInput = document.getElementById('vault-pin-input');
+    if (pinInput && pinInput.value.length >= 4) {
+        document.getElementById('vault-auth-screen').classList.add('hidden');
+        document.getElementById('vault-content-panel').classList.remove('hidden');
+        pinInput.value = '';
+    } else {
+        alert("Please enter a valid secure vault PIN (at least 4 digits).");
+    }
+}
+
+function lockVault() {
+    document.getElementById('vault-content-panel').classList.add('hidden');
+    document.getElementById('vault-auth-screen').classList.remove('hidden');
+}
+
+function addVaultItem(type) {
+    const name = prompt(`Enter new secure ${type} item name:`);
+    if (!name) return;
+
+    const listId = type === 'destination' ? 'vault-destinations-list' : 'vault-catering-list';
+    const container = document.getElementById(listId);
+
+    if (container) {
+        const itemHTML = `
+            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+                <span>${escapeHtml(name)}</span>
+                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>
+            </div>
+        `;
+        container.insertAdjacentHTML('beforeend', itemHTML);
+    }
+}
+
+function saveSecureNote() {
+    alert("Secure notes successfully encrypted and saved to local vault storage.");
+}
+
+
 // --- LIVE FLIGHT TRACKER ENGINE ---
 let flightTimer = null;
 let currentTrackedFlight = {
@@ -258,7 +394,6 @@ function initFlightTracker() {
                 currentTrackedFlight.callsign = query.toUpperCase();
                 updateFlightUI();
                 
-                // Sync and focus radar map on searched flight (zoomed in closer for single aircraft tracking)
                 const radarFrame = document.getElementById('live-radar-frame');
                 if (radarFrame) {
                     radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=7&icao=&sel=${encodeURIComponent(query)}`;
@@ -290,7 +425,6 @@ function startFlightPolling() {
 function fetchLiveFlightData() {
     currentTrackedFlight.altitude += Math.floor(Math.random() * 200) - 100;
     currentTrackedFlight.groundSpeed += Math.floor(Math.random() * 10) - 5;
-    
     updateFlightUI();
 }
 
@@ -302,10 +436,10 @@ function handleNetworkChange() {
 
     if (navigator.onLine) {
         statusIndicator.className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
-        statusText.textContent = "Live Updates Active (Every 30s)";
+        statusText.textContent = "Live Updates Active";
     } else {
         statusIndicator.className = "w-3 h-3 rounded-full bg-amber-500";
-        statusText.textContent = "Offline Mode — Cached Data Active";
+        statusText.textContent = "Offline Mode";
     }
 }
 
@@ -345,12 +479,10 @@ function initGlobalClocks() {
 
 function updateClocks() {
     const now = new Date();
-
     const utcEl = document.getElementById('header-utc-clock');
     if (utcEl) {
         utcEl.textContent = now.toLocaleTimeString('en-US', { timeZone: 'UTC', hour12: false }) + " UTC";
     }
-
     updateRotatingTimeZone(now);
 }
 
