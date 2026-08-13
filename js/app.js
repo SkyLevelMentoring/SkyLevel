@@ -7,8 +7,8 @@ if ('serviceWorker' in navigator) {
     });
 }
 
-// Single-Page View Switching Engine
-function switchView(viewId) {
+// Single-Page View Switching Engine with Browser History Back-Button Support
+function switchView(viewId, updateHistory = true) {
     document.querySelectorAll('.app-view').forEach(view => {
         view.classList.add('hidden');
     });
@@ -27,16 +27,28 @@ function switchView(viewId) {
             btn.classList.add('text-slate-400');
         }
     });
+
+    if (updateHistory) {
+        history.pushState({ view: viewId }, "", `#${viewId}`);
+    }
 }
 
-// Global Private Aviation Database (Continents -> Countries -> Cities)
+window.addEventListener('popstate', (event) => {
+    if (event.state && event.state.view) {
+        switchView(event.state.view, false);
+    } else {
+        switchView('home', false);
+    }
+});
+
+// Global Aviation Database with Country Flags
 const aviationDatabase = [
     {
         continent: "North America",
-        id: "na",
         countries: [
             {
                 name: "United States",
+                flag: "🇺🇸",
                 cities: [
                     { name: "New York", hubs: ["Teterboro (TEB)", "White Plains (HPN)", "JFK"] },
                     { name: "Los Angeles", hubs: ["Van Nuys (VNY)", "Los Angeles Int (LAX)", "Burbank (BUR)"] },
@@ -46,6 +58,7 @@ const aviationDatabase = [
             },
             {
                 name: "Canada",
+                flag: "🇨🇦",
                 cities: [
                     { name: "Toronto", hubs: ["Toronto Pearson (YYZ)", "Billy Bishop (YTZ)"] },
                     { name: "Vancouver", hubs: ["Vancouver International (YVR)"] }
@@ -55,16 +68,17 @@ const aviationDatabase = [
     },
     {
         continent: "Europe",
-        id: "eu",
         countries: [
             {
                 name: "United Kingdom",
+                flag: "🇬🇧",
                 cities: [
                     { name: "London", hubs: ["Farnborough (EGLF)", "London Biggin Hill (BQH)", "London Luton (LTN)"] }
                 ]
             },
             {
                 name: "France",
+                flag: "🇫🇷",
                 cities: [
                     { name: "Paris", hubs: ["Le Bourget (LBG)", "Charles de Gaulle (CDG)"] },
                     { name: "Nice", hubs: ["Nice Côte d'Azur (NCE)"] }
@@ -72,6 +86,7 @@ const aviationDatabase = [
             },
             {
                 name: "Switzerland",
+                flag: "🇨🇭",
                 cities: [
                     { name: "Geneva", hubs: ["Geneva International (GVA)"] },
                     { name: "Zurich", hubs: ["Zurich Airport (ZRH)"] }
@@ -81,22 +96,24 @@ const aviationDatabase = [
     },
     {
         continent: "Asia",
-        id: "as",
         countries: [
             {
                 name: "United Arab Emirates",
+                flag: "🇦🇪",
                 cities: [
                     { name: "Dubai", hubs: ["Dubai International (DXB)", "Al Maktoum International (DWC)", "Dubai Executive Flight Center"] }
                 ]
             },
             {
                 name: "Singapore",
+                flag: "🇸🇬",
                 cities: [
                     { name: "Singapore", hubs: ["Seletar Airport (XSP)", "Changi Airport (SIN)"] }
                 ]
             },
             {
                 name: "Japan",
+                flag: "🇯🇵",
                 cities: [
                     { name: "Tokyo", hubs: ["Haneda (HND)", "Narita (NRT)"] }
                 ]
@@ -105,10 +122,10 @@ const aviationDatabase = [
     },
     {
         continent: "Oceania",
-        id: "oc",
         countries: [
             {
                 name: "Australia",
+                flag: "🇦🇺",
                 cities: [
                     { name: "Sydney", hubs: ["Sydney Kingsford Smith (SYD)"] },
                     { name: "Melbourne", hubs: ["Melbourne Airport (MEL)", "Essendon Fields (MEB)"] }
@@ -118,10 +135,10 @@ const aviationDatabase = [
     },
     {
         continent: "South America",
-        id: "sa",
         countries: [
             {
                 name: "Brazil",
+                flag: "🇧🇷",
                 cities: [
                     { name: "São Paulo", hubs: ["Congonhas (CGH)", "Guarulhos (GRU)"] }
                 ]
@@ -130,10 +147,10 @@ const aviationDatabase = [
     },
     {
         continent: "Africa",
-        id: "af",
         countries: [
             {
                 name: "South Africa",
+                flag: "🇿🇦",
                 cities: [
                     { name: "Johannesburg", hubs: ["O.R. Tambo (JNB)", "Lanseria International (HLA)"] }
                 ]
@@ -145,14 +162,12 @@ const aviationDatabase = [
 let selectedContinentIndex = null;
 let selectedCountryIndex = null;
 
-// Render uniform interactive directory
 function renderAviationDirectory() {
     const container = document.getElementById('catering-content-list');
     if (!container) return;
 
     let html = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
     
-    // Step 1: Render Uniform Continent Buttons
     aviationDatabase.forEach((cont, cIndex) => {
         const isSelected = selectedContinentIndex === cIndex;
         html += `
@@ -164,7 +179,6 @@ function renderAviationDirectory() {
     });
     html += `</div>`;
 
-    // Step 2: Render Countries for Selected Continent
     if (selectedContinentIndex !== null) {
         const activeContinent = aviationDatabase[selectedContinentIndex];
         html += `<div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-4 mb-6">`;
@@ -174,19 +188,19 @@ function renderAviationDirectory() {
         activeContinent.countries.forEach((country, coIndex) => {
             const isCountrySelected = selectedCountryIndex === coIndex;
             html += `
-                <button onclick="selectCountry(${coIndex})" class="px-5 py-2.5 rounded-xl border text-sm font-medium transition ${isCountrySelected ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow' : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700'}">
-                    ${country.name}
+                <button onclick="selectCountry(${coIndex})" class="px-5 py-2.5 rounded-xl border text-sm font-medium transition flex items-center space-x-2 ${isCountrySelected ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow' : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700'}">
+                    <span class="text-lg">${country.flag}</span>
+                    <span>${country.name}</span>
                 </button>
             `;
         });
         html += `</div></div>`;
     }
 
-    // Step 3: Render Cities & Hubs for Selected Country
     if (selectedContinentIndex !== null && selectedCountryIndex !== null) {
         const activeCountry = aviationDatabase[selectedContinentIndex].countries[selectedCountryIndex];
         html += `<div class="bg-slate-950/80 border border-slate-800 p-6 rounded-2xl space-y-4">`;
-        html += `<h3 class="text-lg font-semibold text-amber-300">${activeCountry.name} — Major Private Aviation Hubs</h3>`;
+        html += `<h3 class="text-lg font-semibold text-amber-300 flex items-center space-x-2"><span class="text-xl">${activeCountry.flag}</span><span>${activeCountry.name} — Major Private Aviation Hubs</span></h3>`;
         html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
 
         activeCountry.cities.forEach(city => {
@@ -210,7 +224,7 @@ function renderAviationDirectory() {
 
 function selectContinent(index) {
     selectedContinentIndex = index;
-    selectedCountryIndex = null; // Reset country selection when changing continent
+    selectedCountryIndex = null;
     renderAviationDirectory();
 }
 
@@ -219,7 +233,6 @@ function selectCountry(index) {
     renderAviationDirectory();
 }
 
-// Auto-run directory builder when page loads
 window.addEventListener('DOMContentLoaded', () => {
     renderAviationDirectory();
 });
