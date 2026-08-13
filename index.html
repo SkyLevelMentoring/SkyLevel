@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Aviation & Private Jet Operations Hub</title>
+    <title>Skylevel - Private Jet Charter & Management</title>
     <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
 </head>
@@ -14,14 +14,15 @@
         <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center space-x-3">
                 <div id="network-status-indicator" class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                <h1 class="text-base font-extrabold tracking-tight text-amber-400">GABSYNC <span class="text-slate-100 font-light">Aviation OS</span></h1>
+                <h1 class="text-base font-extrabold tracking-tight text-amber-400">SKYLEVEL</h1>
                 <span id="network-status-text" class="text-xs text-slate-400 hidden sm:inline">Live Updates Active</span>
             </div>
             
-            <!-- Main Navigation Links -->
-            <nav class="flex items-center space-x-1 sm:space-x-3 overflow-x-auto max-w-full pb-1 md:pb-0">
+            <!-- Main Navigation Links with Catering & Community added back -->
+            <nav class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto max-w-full pb-1 md:pb-0">
                 <button onclick="switchView('home')" data-target="home" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-amber-400 bg-slate-800/60 border border-slate-700">Home</button>
                 <button onclick="switchView('directory')" data-target="directory" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Directory</button>
+                <button onclick="switchView('catering')" data-target="catering" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Catering</button>
                 <button onclick="switchView('community')" data-target="community" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Community</button>
                 <button onclick="switchView('vault')" data-target="vault" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Secure Vault</button>
             </nav>
@@ -83,7 +84,7 @@
                     <div class="text-xs text-slate-400">Real-time ADS-B Airspace Traffic Feed</div>
                 </div>
                 
-                <!-- Interactive Radar Map Container (Zoomed out initially for clean layout) -->
+                <!-- Interactive Radar Map Container -->
                 <div class="relative w-full h-96 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
                     <iframe id="live-radar-frame" src="https://globe.adsbexchange.com/?kiosk&zoom=3&lat=35.0&lon=-40.0" class="w-full h-full border-0 filter invert hue-rotate-180 contrast-125 opacity-85"></iframe>
                     <div class="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-800 px-4 py-2 rounded-xl text-[11px] text-slate-300 flex items-center space-x-3 shadow-lg">
@@ -100,7 +101,36 @@
                 <h2 class="text-2xl font-extrabold text-slate-100 tracking-tight">Global Aviation Directory & FBO Hubs</h2>
                 <p class="text-xs text-slate-400 mt-1">Select continents and countries to inspect major private aviation handling hubs and FBO networks.</p>
             </div>
-            <div id="catering-content-list"></div>
+            <div id="directory-content-list"></div>
+        </div>
+
+        <!-- ================= VIEW: CATERING ================= -->
+        <div id="view-catering" class="app-view hidden space-y-6 pb-12">
+            <div class="border-b border-slate-800 pb-4">
+                <h2 class="text-2xl font-extrabold text-slate-100 tracking-tight">Executive In-Flight Catering Menu</h2>
+                <p class="text-xs text-slate-400 mt-1">Custom gourmet selections, VIP dietary platters, and bespoke refreshment services.</p>
+            </div>
+            <div id="catering-content-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <!-- Catering Cards -->
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
+                    <span class="text-2xl">🥐</span>
+                    <h3 class="text-base font-bold text-amber-400">Continental Breakfast VIP</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">Artisanal pastries, fresh seasonal berries, Greek yogurt parfaits, freshly squeezed juices, and specialty espresso service.</p>
+                    <button onclick="alert('Catering option added to active flight plan.')" class="w-full mt-2 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/50 text-xs text-slate-200 font-bold rounded-xl transition">Select Option</button>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
+                    <span class="text-2xl">🍣</span>
+                    <h3 class="text-base font-bold text-amber-400">Executive Canapés & Seafood</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">Hand-crafted sushi selections, smoked salmon tartlets, premium caviar service with blinis, and curated artisan cheese boards.</p>
+                    <button onclick="alert('Catering option added to active flight plan.')" class="w-full mt-2 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/50 text-xs text-slate-200 font-bold rounded-xl transition">Select Option</button>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
+                    <span class="text-2xl">🥩</span>
+                    <h3 class="text-base font-bold text-amber-400">Warm Gourmet Dining</h3>
+                    <p class="text-xs text-slate-300 leading-relaxed">Pan-seared filet mignon with truffle reduction, herb-roasted Chilean sea bass, roasted seasonal vegetables, and molten chocolate cake.</p>
+                    <button onclick="alert('Catering option added to active flight plan.')" class="w-full mt-2 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/50 text-xs text-slate-200 font-bold rounded-xl transition">Select Option</button>
+                </div>
+            </div>
         </div>
 
         <!-- ================= VIEW: COMMUNITY ================= -->
@@ -121,7 +151,7 @@
                 <!-- Post Creation Card -->
                 <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl">
                     <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400">G</div>
+                        <div class="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400">S</div>
                         <div>
                             <h4 class="text-sm font-bold text-slate-200">Share Your Experience</h4>
                             <p class="text-[10px] text-slate-400">Short stories (max 1,000 characters), photos, or clips</p>
