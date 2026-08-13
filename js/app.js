@@ -570,3 +570,10 @@ document.addEventListener('DOMContentLoaded', () => {
     initGlobalClocks();
     initAutomatedWeather();
 });
+if ('serviceWorker' in navigator) {
+  window.addEventListener('load', () => {
+    navigator.serviceWorker.register('/sw.js')
+      .then((reg) => console.log('SkyLevel Service Worker active on scope:', reg.scope))
+      .catch((err) => console.error('SkyLevel Service Worker registration failed:', err));
+  });
+}
