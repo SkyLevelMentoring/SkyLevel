@@ -165,7 +165,7 @@ let selectedContinentIndex = null;
 let selectedCountryIndex = null;
 
 function renderAviationDirectory() {
-    const container = document.getElementById('catering-content-list');
+    const container = document.getElementById('directory-content-list');
     if (!container) return;
 
     let html = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
@@ -293,9 +293,9 @@ function submitCommunityPost() {
         <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3 animate-fade-in">
             <div class="flex items-center justify-between">
                 <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400 text-xs">G</div>
+                    <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400 text-xs">S</div>
                     <div>
-                        <h5 class="text-xs font-bold text-slate-200">Gabrielle (GABSYNC)</h5>
+                        <h5 class="text-xs font-bold text-slate-200">Skylevel Member</h5>
                         <span class="text-[10px] text-slate-500">Just now • Public Log</span>
                     </div>
                 </div>
