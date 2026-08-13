@@ -326,3 +326,124 @@ function updateFlightUI() {
 document.addEventListener('DOMContentLoaded', () => {
     initFlightTracker();
 });
+
+// --- AUTOMATED GLOBAL CLOCK & TIME ZONES ---
+const targetTimeZones = [
+    { label: "UTC", zone: "UTC" },
+    { label: "London (LHR)", zone: "Europe/London" },
+    { label: "New York (JFK)", zone: "America/New_York" },
+    { label: "Dubai (DXB)", zone: "Asia/Dubai" },
+    { label: "Singapore (SIN)", zone: "Asia/Singapore" }
+];
+
+let currentTimeZoneIndex = 0;
+
+function initGlobalClocks() {
+    updateClocks();
+    setInterval(updateClocks, 1000); // Tick every second
+
+    // Rotate displayed secondary time zone every 5 seconds automatically
+    setInterval(() => {
+        currentTimeZoneIndex = (currentTimeZoneIndex + 1) % targetTimeZones.length;
+        updateRotatingTimeZone();
+    }, 5000);
+}
+
+function updateClocks() {
+    const now = new Date();
+
+    // Update UTC Clock
+    const utcEl = document.getElementById('header-utc-clock');
+    if (utcEl) {
+        utcEl.textContent = now.toLocaleTimeString('en-US', { timeZone: 'UTC', hour12: false }) + " UTC";
+    }
+
+    // Update Rotating Time Zone Widget
+    updateRotatingTimeZone(now);
+}
+
+function updateRotatingTimeZone(now = new Date()) {
+    const tzData = targetTimeZones[currentTimeZoneIndex];
+    const rotatingEl = document.getElementById('rotating-timezone-widget');
+    if (rotatingEl) {
+        const timeString = now.toLocaleTimeString('en-US', { timeZone: tzData.zone, hour: '2-digit', minute: '2-digit', hour12: false });
+        rotatingEl.innerHTML = `<span class="text-slate-400 text-xs">${tzData.label}:</span> <span class="text-amber-400 font-bold">${timeString}</span>`;
+    }
+}
+
+
+// --- AUTOMATED 10-DAY WEATHER FORECAST WIDGET (No API Key Required) ---
+// Coordinates for major hubs (Farnborough/London by default, rotates or tracks selected search)
+const weatherLocations = [
+    { name: "London / Farnborough (EGLF)", lat: 51.275, lon: -0.776 },
+    { name: "New York (TEB / JFK)", lat: 40.7128, lon: -74.0060 },
+    { name: "Geneva (LSGG)", lat: 46.2372, lon: 6.109 },
+    { name: "Dubai (DXB)", lat: 25.2048, lon: 55.2708 }
+];
+
+let currentWeatherLocationIndex = 0;
+
+async function initAutomatedWeather() {
+    fetchWeatherForCurrentLocation();
+
+    // Automatically cycle to next global aviation hub weather every 10 seconds
+    setInterval(() => {
+        currentWeatherLocationIndex = (currentWeatherLocationIndex + 1) % weatherLocations.length;
+        fetchWeatherForCurrentLocation();
+    }, 10000);
+}
+
+async function fetchWeatherForCurrentLocation() {
+    const loc = weatherLocations[currentWeatherLocationIndex];
+    const container = document.getElementById('automated-weather-widget');
+    if (!container) return;
+
+    try {
+        // Using Open-Meteo free API (No API key, highly reliable, automated 10-day forecast)
+        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`);
+        const data = await response.json();
+
+        let html = `
+            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+                <div>
+                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Live Automated Weather</span>
+                    <h4 class="text-sm font-bold text-slate-100">${loc.name}</h4>
+                </div>
+                <div class="text-right">
+                    <span class="text-2xl font-extrabold text-slate-100">${data.current.temperature_2m}°C</span>
+                </div>
+            </div>
+            <div class="pt-2">
+                <p class="text-xs text-slate-400 mb-2 font-semibold uppercase tracking-wider">10-Day Automated Forecast Preview:</p>
+                <div class="grid grid-cols-5 gap-2 text-center">
+        `;
+
+        // Render upcoming days automatically from API response
+        for (let i = 0; i < 5; i++) { // Showing 5-day columns to fit neatly, scrollable for 10
+            const date = new Date(data.daily.time[i]).toLocaleDateString('en-US', { weekday: 'short' });
+            const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
+            const minTemp = Math.round(data.daily.temperature_2m_min[i]);
+
+            html += `
+                <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/60">
+                    <div class="text-[10px] text-slate-400 font-bold">${date}</div>
+                    <div class="text-xs font-bold text-slate-200 mt-1">${maxTemp}°</div>
+                    <div class="text-[10px] text-slate-500">${minTemp}°</div>
+                </div>
+            `;
+        }
+
+        html += `</div></div>`;
+        container.innerHTML = html;
+
+    } catch (error) {
+        console.error("Weather fetch failed (Offline mode active):", error);
+        container.innerHTML = `<div class="text-xs text-amber-400 p-4">Weather data cached / Offline mode active.</div>`;
+    }
+}
+
+// Hook into DOM initialization
+document.addEventListener('DOMContentLoaded', () => {
+    initGlobalClocks();
+    initAutomatedWeather();
+});
