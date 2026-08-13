@@ -23,8 +23,10 @@
                 <button onclick="switchView('home')" class="nav-link text-amber-400 transition hover:text-amber-300" data-target="home">Home</button>
                 <button onclick="switchView('explore')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="explore">Explore</button>
                 <button onclick="switchView('catering')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="catering">Catering</button>
-                <button onclick="switchView('community')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="community">Community / Social</button>
-                <button onclick="switchView('guides')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="guides">Mentoring & Guides</button>
+                <button onclick="switchView('advisories')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="advisories">Advisories</button>
+                <button onclick="switchView('news')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="news">News</button>
+                <button onclick="switchView('community')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="community">Community</button>
+                <button onclick="switchView('guides')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="guides">Guides</button>
             </nav>
 
             <!-- Register / Action Button -->
@@ -63,11 +65,51 @@
                     <p class="text-slate-400">Continents, primary business aviation countries, and VIP handling hubs.</p>
                 </div>
             </div>
-            <!-- Dynamic JavaScript populates continents/countries here -->
+            <!-- Dynamic JavaScript populates continents/countries/flags here -->
             <div id="catering-content-list"></div>
         </section>
 
-        <!-- COMMUNITY VIEW (Social Threads / Posts) -->
+        <!-- ADVISORIES VIEW -->
+        <section id="view-advisories" class="app-view hidden space-y-6">
+            <h2 class="text-3xl font-bold text-amber-400">Global Travel & Aviation Advisories</h2>
+            <p class="text-slate-400">Real-time operational restrictions, airspace warnings, and security updates.</p>
+            <div class="space-y-4">
+                <div class="bg-slate-900/80 border border-red-500/30 p-5 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-red-400">European Airspace Notice: Strict Noise & Slot Compliance</h3>
+                        <span class="text-xs bg-red-500/20 text-red-300 px-2 py-1 rounded">High Priority</span>
+                    </div>
+                    <p class="text-slate-300 text-sm">Mandatory slot adherence times enforced strictly across major Western European hubs (CDG, LBG, GVA) due to seasonal traffic density.</p>
+                </div>
+                <div class="bg-slate-900/80 border border-amber-500/30 p-5 rounded-xl space-y-2">
+                    <div class="flex justify-between items-center">
+                        <h3 class="font-bold text-amber-300">Middle East Routing Caution</h3>
+                        <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-1 rounded">Advisory</span>
+                    </div>
+                    <p class="text-slate-300 text-sm">Check daily NOTAMs for updated flight level constraints and preferred routing tracks through UAE and neighboring FIRs.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- NEWS VIEW -->
+        <section id="view-news" class="app-view hidden space-y-6">
+            <h2 class="text-3xl font-bold text-amber-400">Private Aviation News</h2>
+            <p class="text-slate-400">Latest updates from the business jet sector, FBO expansions, and fleet developments.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
+                    <span class="text-xs text-amber-400 font-semibold uppercase">FBO Expansion</span>
+                    <h3 class="text-xl font-bold text-slate-100">New Executive Terminal Opens at Farnborough (EGLF)</h3>
+                    <p class="text-slate-400 text-sm">State-of-the-art crew briefing rooms and expanded VIP passenger lounges now fully operational.</p>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
+                    <span class="text-xs text-amber-400 font-semibold uppercase">Sustainability</span>
+                    <h3 class="text-xl font-bold text-slate-100">Sustainable Aviation Fuel (SAF) Uptake Surges Globally</h3>
+                    <p class="text-slate-400 text-sm">Major handling networks across North America and Europe report record quarterly demand for blended SAF.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- COMMUNITY VIEW -->
         <section id="view-community" class="app-view hidden space-y-6">
             <div class="flex justify-between items-center">
                 <div>
@@ -88,7 +130,7 @@
             </div>
         </section>
 
-        <!-- GUIDES VIEW (Mentoring & Guidebook) -->
+        <!-- GUIDES VIEW -->
         <section id="view-guides" class="app-view hidden space-y-6">
             <h2 class="text-2xl font-bold text-amber-400">Operational Guides & Mentoring</h2>
             <p class="text-slate-400">Custom procedures, compliance checklists, and professional mentor resources.</p>
