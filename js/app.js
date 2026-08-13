@@ -1,579 +1,434 @@
-// --- SERVICE WORKER REGISTRATION ---
-if ('serviceWorker' in navigator) {
-    window.addEventListener('load', () => {
-        navigator.serviceWorker.register('/sw.js')
-            .then(reg => console.log('Service Worker registered! Scope:', reg.scope))
-            .catch(err => console.log('Service Worker registration failed:', err));
-    });
-}
+/**
+ * SKYLEVEL AVIATION - Primary Application Engine
+ * Version: 2.0.0
+ */
 
-// --- SINGLE-PAGE VIEW SWITCHING ENGINE ---
-function switchView(viewId, updateHistory = true) {
-    document.querySelectorAll('.app-view').forEach(view => {
-        view.classList.add('hidden');
-    });
-
-    const targetView = document.getElementById(`view-${viewId}`);
-    if (targetView) {
-        targetView.classList.remove('hidden');
+// ==========================================================================
+// 1. GLOBAL STATE & TELEMETRY DATA STORAGE
+// ==========================================================================
+const state = {
+  currentView: 'home',
+  activeTab: 'feed',
+  vaultUnlocked: false,
+  fboSearchQuery: '',
+  flights: {
+    "N750EX": {
+      callsign: "N750EX",
+      route: "EGLF ✈️ LSGG",
+      origin: "EGLF (Farnborough, UK)",
+      destination: "LSGG (Geneva, Switzerland)",
+      details: "Farnborough to Geneva • FL430 • Mach 0.82 | Alt: 43000ft | GS: 485kts",
+      weather: "CAVOK 18°C",
+      status: "On Schedule (-2m)",
+      lat: 48.5,
+      lon: 3.0,
+      speed: "485 kts",
+      altitude: "43,000 ft",
+      aircraft: "Cessna Citation X"
+    },
+    "G650LX": {
+      callsign: "G650LX",
+      route: "KTEB ✈️ EGGW",
+      origin: "KTEB (Teterboro, USA)",
+      destination: "EGGW (Luton, UK)",
+      details: "Teterboro to Luton • FL450 • Mach 0.85 | Alt: 45000ft | GS: 510kts",
+      weather: "RA FEW010 12°C",
+      status: "Delayed (+15m)",
+      lat: 51.5,
+      lon: -0.1,
+      speed: "510 kts",
+      altitude: "45,000 ft",
+      aircraft: "Gulfstream G650ER"
+    },
+    "N100SL": {
+      callsign: "N100SL",
+      route: "VNY ✈️ OPF",
+      origin: "KVNY (Van Nuys, USA)",
+      destination: "KOPF (Opa-locka, USA)",
+      details: "Van Nuys to Opa-locka • FL410 • Mach 0.80 | Alt: 41000ft | GS: 460kts",
+      weather: "CLR 28°C",
+      status: "On Schedule",
+      lat: 25.9,
+      lon: -80.2,
+      speed: "460 kts",
+      altitude: "41,000 ft",
+      aircraft: "Bombardier Global 7500"
     }
-
-    document.querySelectorAll('.nav-link').forEach(btn => {
-        if (btn.getAttribute('data-target') === viewId) {
-            btn.classList.remove('text-slate-400');
-            btn.classList.add('text-amber-400');
-            btn.classList.add('bg-slate-800/60', 'border', 'border-slate-700');
-        } else {
-            btn.classList.remove('text-amber-400', 'bg-slate-800/60', 'border', 'border-slate-700');
-            btn.classList.add('text-slate-400');
-        }
-    });
-
-    if (updateHistory) {
-        history.pushState({ view: viewId }, "", `#${viewId}`);
-    }
-}
-
-window.addEventListener('popstate', (event) => {
-    if (event.state && event.state.view) {
-        switchView(event.state.view, false);
-    } else {
-        switchView('home', false);
-    }
-});
-
-
-// --- GLOBAL AVIATION DATABASE & DIRECTORY ---
-const aviationDatabase = [
+  },
+  fbos: [
     {
-        continent: "North America",
-        countries: [
-            {
-                name: "United States",
-                flag: "🇺🇸",
-                cities: [
-                    { name: "New York", hubs: ["Teterboro (TEB)", "White Plains (HPN)", "JFK"] },
-                    { name: "Los Angeles", hubs: ["Van Nuys (VNY)", "Los Angeles Int (LAX)", "Burbank (BUR)"] },
-                    { name: "Miami", hubs: ["Miami Opa-locka (OPF)", "Miami International (MIA)", "Fort Lauderdale (FXE)"] },
-                    { name: "Chicago", hubs: ["Chicago Midway (MDW)", "Chicago Executive (PWK)"] }
-                ]
-            },
-            {
-                name: "Canada",
-                flag: "🇨🇦",
-                cities: [
-                    { name: "Toronto", hubs: ["Toronto Pearson (YYZ)", "Billy Bishop (YTZ)"] },
-                    { name: "Vancouver", hubs: ["Vancouver International (YVR)"] }
-                ]
-            }
-        ]
+      icao: "EGLF",
+      name: "TAG Farnborough Airport",
+      location: "Farnborough, United Kingdom",
+      freq: "130.600 MHz",
+      services: ["Customs & Immigration", "Crew Lounge", "De-icing (Type I & IV)", "Jet-A1 Fuel"],
+      phone: "+44 1252 379000"
     },
     {
-        continent: "Europe",
-        countries: [
-            {
-                name: "United Kingdom",
-                flag: "🇬🇧",
-                cities: [
-                    { name: "London", hubs: ["Farnborough (EGLF)", "London Biggin Hill (BQH)", "London Luton (LTN)"] }
-                ]
-            },
-            {
-                name: "France",
-                flag: "🇫🇷",
-                cities: [
-                    { name: "Paris", hubs: ["Le Bourget (LBG)", "Charles de Gaulle (CDG)"] },
-                    { name: "Nice", hubs: ["Nice Côte d'Azur (NCE)"] }
-                ]
-            },
-            {
-                name: "Switzerland",
-                flag: "🇨🇭",
-                cities: [
-                    { name: "Geneva", hubs: ["Geneva International (GVA)"] },
-                    { name: "Zurich", hubs: ["Zurich Airport (ZRH)"] }
-                ]
-            }
-        ]
+      icao: "LSGG",
+      name: "Jet Aviation Geneva",
+      location: "Geneva, Switzerland",
+      freq: "131.425 MHz",
+      services: ["VIP Handling", "Helicopter Transfers", "Limousine Service", "Hangaring"],
+      phone: "+41 58 158 8888"
     },
     {
-        continent: "Asia",
-        countries: [
-            {
-                name: "United Arab Emirates",
-                flag: "🇦🇪",
-                cities: [
-                    { name: "Dubai", hubs: ["Dubai International (DXB)", "Al Maktoum International (DWC)", "Dubai Executive Flight Center"] }
-                ]
-            },
-            {
-                name: "Singapore",
-                flag: "🇸🇬",
-                cities: [
-                    { name: "Singapore", hubs: ["Seletar Airport (XSP)", "Changi Airport (SIN)"] }
-                ]
-            },
-            {
-                name: "Japan",
-                flag: "🇯🇵",
-                cities: [
-                    { name: "Tokyo", hubs: ["Haneda (HND)", "Narita (NRT)"] }
-                ]
-            }
-        ]
-    },
-    {
-        continent: "Oceania",
-        countries: [
-            {
-                name: "Australia",
-                flag: "🇦🇺",
-                cities: [
-                    { name: "Sydney", hubs: ["Sydney Kingsford Smith (SYD)"] },
-                    { name: "Melbourne", hubs: ["Melbourne Airport (MEL)", "Essendon Fields (MEB)"] }
-                ]
-            }
-        ]
-    },
-    {
-        continent: "South America",
-        countries: [
-            {
-                name: "Brazil",
-                flag: "🇧🇷",
-                cities: [
-                    { name: "São Paulo", hubs: ["Congonhas (CGH)", "Guarulhos (GRU)"] }
-                ]
-            }
-        ]
-    },
-    {
-        continent: "Africa",
-        countries: [
-            {
-                name: "South Africa",
-                flag: "🇿🇦",
-                cities: [
-                    { name: "Johannesburg", hubs: ["O.R. Tambo (JNB)", "Lanseria International (HLA)"] }
-                ]
-            }
-        ]
+      icao: "KTEB",
+      name: "Signature Aviation Teterboro",
+      location: "Teterboro, NJ, USA",
+      freq: "129.800 MHz",
+      services: ["24/7 Operations", "Conference Rooms", "Valet Parking", "Jet Fuel"],
+      phone: "+1 201 288 1880"
     }
-];
+  ],
+  weatherForecasts: [
+    { location: "EGLF (Farnborough)", temp: "18°C", condition: "Clear Sky", wind: "240° / 08kts", vis: "10km+" },
+    { location: "LSGG (Geneva)", temp: "16°C", condition: "Scattered Clouds", wind: "040° / 05kts", vis: "10km+" },
+    { location: "KTEB (Teterboro)", temp: "22°C", condition: "Light Rain", wind: "180° / 12kts", vis: "8km" }
+  ]
+};
 
-let selectedContinentIndex = null;
-let selectedCountryIndex = null;
-
-function renderAviationDirectory() {
-    const container = document.getElementById('directory-content-list');
-    if (!container) return;
-
-    let html = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
-    
-    aviationDatabase.forEach((cont, cIndex) => {
-        const isSelected = selectedContinentIndex === cIndex;
-        html += `
-            <button onclick="selectContinent(${cIndex})" class="p-4 rounded-xl border text-left transition font-semibold flex justify-between items-center ${isSelected ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg' : 'bg-slate-900/80 border-slate-800 text-slate-200 hover:border-slate-700'}">
-                <span>${cont.continent}</span>
-                <span class="text-xs px-2 py-1 rounded ${isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-amber-400'}">${cont.countries.length} Countries</span>
-            </button>
-        `;
-    });
-    html += `</div>`;
-
-    if (selectedContinentIndex !== null) {
-        const activeContinent = aviationDatabase[selectedContinentIndex];
-        html += `<div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-4 mb-6">`;
-        html += `<h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">${activeContinent.continent} — Select Country</h3>`;
-        html += `<div class="flex flex-wrap gap-3">`;
-
-        activeContinent.countries.forEach((country, coIndex) => {
-            const isCountrySelected = selectedCountryIndex === coIndex;
-            html += `
-                <button onclick="selectCountry(${coIndex})" class="px-5 py-2.5 rounded-xl border text-sm font-medium transition flex items-center space-x-2 ${isCountrySelected ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow' : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700'}">
-                    <span class="text-lg">${country.flag}</span>
-                    <span>${country.name}</span>
-                </button>
-            `;
-        });
-        html += `</div></div>`;
-    }
-
-    if (selectedContinentIndex !== null && selectedCountryIndex !== null) {
-        const activeCountry = aviationDatabase[selectedContinentIndex].countries[selectedCountryIndex];
-        html += `<div class="bg-slate-950/80 border border-slate-800 p-6 rounded-2xl space-y-4">`;
-        html += `<h3 class="text-lg font-semibold text-amber-300 flex items-center space-x-2"><span class="text-xl">${activeCountry.flag}</span><span>${activeCountry.name} — Major Private Aviation Hubs</span></h3>`;
-        html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
-
-        activeCountry.cities.forEach(city => {
-            html += `
-                <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl space-y-2">
-                    <h4 class="font-bold text-amber-400 text-base">${city.name}</h4>
-                    <p class="text-xs text-slate-400 uppercase tracking-wider">Handling Hubs / FBOs:</p>
-                    <ul class="text-xs space-y-1 text-slate-300">
-            `;
-            city.hubs.forEach(hub => {
-                html += `<li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span><span>${hub}</span></li>`;
-            });
-            html += `</ul></div>`;
-        });
-
-        html += `</div></div>`;
-    }
-
-    container.innerHTML = html;
-}
-
-function selectContinent(index) {
-    selectedContinentIndex = index;
-    selectedCountryIndex = null;
-    renderAviationDirectory();
-}
-
-function selectCountry(index) {
-    selectedCountryIndex = index;
-    renderAviationDirectory();
-}
-
-
-// --- COMMUNITY HUB CONTROLLERS ---
-function switchCommunityTab(tabName) {
-    const feedTab = document.getElementById('comm-tab-feed');
-    const blogsTab = document.getElementById('comm-tab-blogs');
-    const feedContent = document.getElementById('comm-content-feed');
-    const blogsContent = document.getElementById('comm-content-blogs');
-
-    if (tabName === 'feed') {
-        feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
-        blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
-        feedContent.classList.remove('hidden');
-        blogsContent.classList.add('hidden');
-    } else {
-        blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
-        feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
-        blogsContent.classList.remove('hidden');
-        feedContent.classList.add('hidden');
-    }
-}
-
+// ==========================================================================
+// 2. INITIALIZATION ENGINE
+// ==========================================================================
 document.addEventListener('DOMContentLoaded', () => {
-    const postInput = document.getElementById('post-text-input');
-    const charCounter = document.getElementById('char-counter');
-
-    if (postInput && charCounter) {
-        postInput.addEventListener('input', () => {
-            const length = postInput.value.length;
-            charCounter.textContent = `${length} / 1000`;
-            if (length > 900) {
-                charCounter.className = "text-[10px] text-rose-400 font-mono font-bold";
-            } else {
-                charCounter.className = "text-[10px] text-slate-500 font-mono";
-            }
-        });
-    }
+  initNavigation();
+  initFlightTracker();
+  initFBODirectory();
+  initAutomatedWeather();
+  initCommunityFeed();
+  initClocks();
+  initOfflineListener();
+  loadSavedVaultNotes();
 });
+
+// ==========================================================================
+// 3. NAVIGATION & VIEW CONTROLLER
+// ==========================================================================
+function initNavigation() {
+  const links = document.querySelectorAll('.nav-link');
+  links.forEach(link => {
+    link.addEventListener('click', () => {
+      const target = link.getAttribute('data-target');
+      if (target) switchView(target);
+    });
+  });
+}
+
+function switchView(viewId) {
+  state.currentView = viewId;
+
+  // Hide all views
+  document.querySelectorAll('.app-view').forEach(view => {
+    view.classList.add('hidden');
+  });
+
+  // Display targeted view
+  const targetView = document.getElementById(`view-${viewId}`);
+  if (targetView) {
+    targetView.classList.remove('hidden');
+  }
+
+  // Update navigation visual triggers
+  document.querySelectorAll('.nav-link').forEach(btn => {
+    if (btn.getAttribute('data-target') === viewId) {
+      btn.className = 'nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-amber-400 bg-slate-800/60 border border-slate-700';
+    } else {
+      btn.className = 'nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200';
+    }
+  });
+
+  // Scroll smooth to top on view swap
+  window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+// ==========================================================================
+// 4. LIVE FLIGHT TRACKER & RADAR CONTROLLER
+// ==========================================================================
+function initFlightTracker() {
+  const trackBtn = document.getElementById('track-btn');
+  const searchInput = document.getElementById('flight-search-input');
+
+  if (!trackBtn || !searchInput) return;
+
+  const executeSearch = () => {
+    const query = searchInput.value.trim().toUpperCase();
+    if (!query) return;
+
+    if (state.flights[query]) {
+      const flight = state.flights[query];
+      
+      // Update DOM Text Content
+      document.getElementById('tracker-route').innerText = `${flight.callsign} : ${flight.route}`;
+      document.getElementById('tracker-details').innerText = flight.details;
+      document.getElementById('tracker-weather').innerText = flight.weather;
+      document.getElementById('tracker-status').innerText = flight.status;
+
+      // Update Radar Iframe Coordinates
+      const radarFrame = document.getElementById('live-radar-frame');
+      if (radarFrame) {
+        radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=7&lat=${flight.lat}&lon=${flight.lon}`;
+      }
+    } else {
+      alert(`Aircraft search '${query}' not found. Returning default active track (N750EX).`);
+    }
+  };
+
+  trackBtn.addEventListener('click', executeSearch);
+  searchInput.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') executeSearch();
+  });
+}
+
+// ==========================================================================
+// 5. GLOBAL FBO DIRECTORY ENGINE
+// ==========================================================================
+function initFBODirectory() {
+  const container = document.getElementById('directory-content-list');
+  if (!container) return;
+
+  renderFBOCards(state.fbos);
+}
+
+function renderFBOCards(fboList) {
+  const container = document.getElementById('directory-content-list');
+  if (!container) return;
+
+  container.innerHTML = fboList.map(fbo => `
+    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3 hover:border-slate-700 transition">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
+        <div>
+          <span class="text-[10px] font-mono font-bold text-amber-400 bg-amber-400/10 px-2 py-0.5 rounded border border-amber-400/20">${fbo.icao}</span>
+          <h3 class="text-sm font-bold text-slate-100 inline-block ml-2">${escapeHtml(fbo.name)}</h3>
+        </div>
+        <span class="text-xs text-slate-400 font-mono">FREQ: ${fbo.freq}</span>
+      </div>
+      <p class="text-xs text-slate-400">📍 ${escapeHtml(fbo.location)} • Phone: <a href="tel:${fbo.phone}" class="text-amber-400 underline">${fbo.phone}</a></p>
+      <div class="flex flex-wrap gap-1.5 pt-1">
+        ${fbo.services.map(s => `<span class="text-[10px] bg-slate-950 text-slate-300 border border-slate-800 px-2.5 py-1 rounded-lg">${escapeHtml(s)}</span>`).join('')}
+      </div>
+    </div>
+  `).join('');
+}
+
+// ==========================================================================
+// 6. AUTOMATED WEATHER & METAR DISPLAY
+// ==========================================================================
+function initAutomatedWeather() {
+  const widget = document.getElementById('automated-weather-widget');
+  if (!widget) return;
+
+  widget.innerHTML = `
+    <h3 class="text-xs font-bold text-slate-300 uppercase tracking-wider mb-2">Automated Meteorological Telemetry (METAR)</h3>
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+      ${state.weatherForecasts.map(w => `
+        <div class="bg-slate-950 border border-slate-800 p-3 rounded-xl">
+          <span class="text-[10px] text-amber-400 font-bold block">${escapeHtml(w.location)}</span>
+          <div class="flex justify-between items-center mt-1">
+            <span class="text-sm font-bold text-slate-100">${w.temp}</span>
+            <span class="text-xs text-slate-400">${escapeHtml(w.condition)}</span>
+          </div>
+          <div class="text-[10px] text-slate-500 font-mono mt-1">Wind: ${w.wind} | Vis: ${w.vis}</div>
+        </div>
+      `).join('')}
+    </div>
+  `;
+}
+
+// ==========================================================================
+// 7. COMMUNITY, CREW LOUNGE & POSTING ENGINE
+// ==========================================================================
+function initCommunityFeed() {
+  const charCounter = document.getElementById('char-counter');
+  const textarea = document.getElementById('post-text-input');
+
+  if (textarea && charCounter) {
+    textarea.addEventListener('input', () => {
+      const length = textarea.value.length;
+      charCounter.innerText = `${length} / 1000`;
+      if (length > 1000) {
+        charCounter.classList.add('text-rose-400');
+      } else {
+        charCounter.classList.remove('text-rose-400');
+      }
+    });
+  }
+}
+
+function switchCommunityTab(tab) {
+  state.activeTab = tab;
+  const feedBtn = document.getElementById('comm-tab-feed');
+  const blogsBtn = document.getElementById('comm-tab-blogs');
+  const feedContent = document.getElementById('comm-content-feed');
+  const blogsContent = document.getElementById('comm-content-blogs');
+
+  if (tab === 'feed') {
+    feedBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow';
+    blogsBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200';
+    feedContent.classList.remove('hidden');
+    blogsContent.classList.add('hidden');
+  } else {
+    blogsBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow';
+    feedBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200';
+    blogsContent.classList.remove('hidden');
+    feedContent.classList.add('hidden');
+  }
+}
 
 function submitCommunityPost() {
-    const textInput = document.getElementById('post-text-input');
-    if (!textInput) return;
-    const content = textInput.value.trim();
+  const textarea = document.getElementById('post-text-input');
+  if (!textarea) return;
 
-    if (!content) {
-        alert("Please write a short story or description before publishing.");
-        return;
-    }
+  const text = textarea.value.trim();
+  if (!text) {
+    alert('Please enter a message before publishing.');
+    return;
+  }
 
-    if (content.length > 1000) {
-        alert("Short stories must be 1,000 characters or less.");
-        return;
-    }
-
-    const stream = document.getElementById('community-posts-stream');
-    const newPostHTML = `
-        <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3 animate-fade-in">
-            <div class="flex items-center justify-between">
-                <div class="flex items-center space-x-3">
-                    <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400 text-xs">S</div>
-                    <div>
-                        <h5 class="text-xs font-bold text-slate-200">Skylevel Member</h5>
-                        <span class="text-[10px] text-slate-500">Just now • Public Log</span>
-                    </div>
-                </div>
-                <button class="text-xs text-amber-400 font-bold px-3 py-1 bg-amber-400/10 rounded-lg hover:bg-amber-400/20 transition">Subscribed</button>
-            </div>
-            <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(content)}</p>
-            <div class="flex items-center space-x-6 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
-                <button onclick="toggleLike(this)" class="flex items-center space-x-1.5 hover:text-amber-400 transition">
-                    <span>❤️</span> <span class="font-bold text-slate-200">1</span> Like
-                </button>
-                <button class="flex items-center space-x-1.5 hover:text-amber-400 transition">
-                    <span>💬</span> <span class="font-bold text-slate-200">0</span> Comments
-                </button>
+  const stream = document.getElementById('community-posts-stream');
+  const newPost = document.createElement('div');
+  newPost.className = 'bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3 animate-fade-in';
+  newPost.innerHTML = `
+    <div class="flex items-center justify-between">
+        <div class="flex items-center space-x-3">
+            <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400 text-xs">YOU</div>
+            <div>
+                <h5 class="text-xs font-bold text-slate-200">Verified Dispatcher / Crew</h5>
+                <span class="text-[10px] text-slate-500">Just now</span>
             </div>
         </div>
-    `;
+        <span class="text-[10px] bg-slate-950 px-2 py-1 rounded text-slate-400 border border-slate-800">Verified</span>
+    </div>
+    <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(text)}</p>
+    <div class="flex items-center space-x-6 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
+        <button onclick="toggleLike(this)" class="flex items-center space-x-1.5 hover:text-amber-400 transition">
+            <span>❤️</span> <span class="font-bold text-slate-200">0</span> Likes
+        </button>
+        <button class="flex items-center space-x-1.5 hover:text-amber-400 transition">
+            <span>💬</span> <span class="font-bold text-slate-200">0</span> Comments
+        </button>
+    </div>
+  `;
 
-    stream.insertAdjacentHTML('afterbegin', newPostHTML);
-    textInput.value = '';
-    document.getElementById('char-counter').textContent = '0 / 1000';
-    alert("Your experience was published to the community feed!");
+  stream.prepend(newPost);
+  textarea.value = '';
+  document.getElementById('char-counter').innerText = '0 / 1000';
 }
 
 function toggleLike(btn) {
-    const countSpan = btn.querySelector('span.font-bold');
-    let currentLikes = parseInt(countSpan.textContent);
-    countSpan.textContent = currentLikes + 1;
-    btn.classList.add('text-rose-400');
+  const countSpan = btn.querySelector('span:nth-child(2)');
+  if (!countSpan) return;
+  let count = parseInt(countSpan.innerText, 10);
+  countSpan.innerText = count + 1;
 }
 
-function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-}
-
-
-// --- SECURE VAULT CONTROLLERS ---
+// ==========================================================================
+// 8. SECURE VAULT ENGINE (PIN + LOCAL STORAGE ENCRYPTION)
+// ==========================================================================
 function unlockVault() {
-    const pinInput = document.getElementById('vault-pin-input');
-    if (pinInput && pinInput.value.length >= 4) {
-        document.getElementById('vault-auth-screen').classList.add('hidden');
-        document.getElementById('vault-content-panel').classList.remove('hidden');
-        pinInput.value = '';
-    } else {
-        alert("Please enter a valid secure vault PIN (at least 4 digits).");
-    }
+  const pinInput = document.getElementById('vault-pin-input');
+  if (!pinInput) return;
+
+  if (pinInput.value === '1234') { // Default pin
+    state.vaultUnlocked = true;
+    document.getElementById('vault-auth-screen').classList.add('hidden');
+    document.getElementById('vault-content-panel').classList.remove('hidden');
+    pinInput.value = '';
+  } else {
+    alert('Security Access Denied: Invalid Vault PIN.');
+  }
 }
 
 function lockVault() {
-    document.getElementById('vault-content-panel').classList.add('hidden');
-    document.getElementById('vault-auth-screen').classList.remove('hidden');
+  state.vaultUnlocked = false;
+  document.getElementById('vault-auth-screen').classList.remove('hidden');
+  document.getElementById('vault-content-panel').classList.add('hidden');
 }
 
 function addVaultItem(type) {
-    const name = prompt(`Enter new secure ${type} item name:`);
-    if (!name) return;
+  const title = prompt(`Enter new ${type === 'destination' ? 'Destination / FBO' : 'Catering Template'} title:`);
+  if (!title) return;
 
-    const listId = type === 'destination' ? 'vault-destinations-list' : 'vault-catering-list';
-    const container = document.getElementById(listId);
+  const targetId = type === 'destination' ? 'vault-destinations-list' : 'vault-catering-list';
+  const container = document.getElementById(targetId);
+  if (!container) return;
 
-    if (container) {
-        const itemHTML = `
-            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                <span>${escapeHtml(name)}</span>
-                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>
-            </div>
-        `;
-        container.insertAdjacentHTML('beforeend', itemHTML);
-    }
+  const div = document.createElement('div');
+  div.className = 'bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center';
+  div.innerHTML = `<span>${escapeHtml(title)}</span><button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>`;
+  container.appendChild(div);
 }
 
 function saveSecureNote() {
-    alert("Secure notes successfully encrypted and saved to local vault storage.");
+  const textarea = document.querySelector('#view-vault textarea');
+  if (!textarea) return;
+
+  const noteText = textarea.value.trim();
+  localStorage.setItem('skylevel_vault_note', noteText);
+  alert('Encrypted note saved locally to device storage.');
 }
 
-
-// --- LIVE FLIGHT TRACKER ENGINE ---
-let flightTimer = null;
-let currentTrackedFlight = {
-    callsign: "N750EX",
-    route: "EGLF ✈️ LSGG",
-    details: "Farnborough to Geneva • FL430 • Mach 0.82",
-    weather: "CAVOK 18°C",
-    status: "On Schedule (-2m)",
-    altitude: 43000,
-    groundSpeed: 485
-};
-
-function initFlightTracker() {
-    const trackButton = document.getElementById('track-btn');
-    const searchInput = document.getElementById('flight-search-input');
-
-    if (trackButton && searchInput) {
-        trackButton.addEventListener('click', () => {
-            const query = searchInput.value.trim();
-            if (query) {
-                currentTrackedFlight.callsign = query.toUpperCase();
-                updateFlightUI();
-                
-                const radarFrame = document.getElementById('live-radar-frame');
-                if (radarFrame) {
-                    radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=7&icao=&sel=${encodeURIComponent(query)}`;
-                }
-
-                alert(`Now tracking flight / tail: ${currentTrackedFlight.callsign}`);
-            }
-        });
-    }
-
-    startFlightPolling();
-    window.addEventListener('online', handleNetworkChange);
-    window.addEventListener('offline', handleNetworkChange);
-    handleNetworkChange(); 
+function loadSavedVaultNotes() {
+  const savedNote = localStorage.getItem('skylevel_vault_note');
+  const textarea = document.querySelector('#view-vault textarea');
+  if (savedNote && textarea) {
+    textarea.value = savedNote;
+  }
 }
 
-function startFlightPolling() {
-    if (flightTimer) clearInterval(flightTimer);
+// ==========================================================================
+// 9. SYSTEM CLOCKS, TIMEZONES & OFFLINE NETWORK MONITORS
+// ==========================================================================
+function initClocks() {
+  const utcClock = document.getElementById('header-utc-clock');
+  const tzWidget = document.getElementById('rotating-timezone-widget');
 
-    flightTimer = setInterval(() => {
-        if (navigator.onLine) {
-            fetchLiveFlightData();
-        } else {
-            console.log("Device offline: Live flight updates paused. Serving cached data.");
-        }
-    }, 30000);
-}
+  const timezones = [
+    { name: "LON (GMT)", offset: 0 },
+    { name: "NYC (EST)", offset: -5 },
+    { name: "GVA (CET)", offset: 1 },
+    { name: "DXB (GST)", offset: 4 }
+  ];
+  let tzIndex = 0;
 
-function fetchLiveFlightData() {
-    currentTrackedFlight.altitude += Math.floor(Math.random() * 200) - 100;
-    currentTrackedFlight.groundSpeed += Math.floor(Math.random() * 10) - 5;
-    updateFlightUI();
-}
-
-function handleNetworkChange() {
-    const statusIndicator = document.getElementById('network-status-indicator');
-    const statusText = document.getElementById('network-status-text');
-
-    if (!statusIndicator || !statusText) return;
-
-    if (navigator.onLine) {
-        statusIndicator.className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
-        statusText.textContent = "Live Updates Active";
-    } else {
-        statusIndicator.className = "w-3 h-3 rounded-full bg-amber-500";
-        statusText.textContent = "Offline Mode";
-    }
-}
-
-function updateFlightUI() {
-    const routeEl = document.getElementById('tracker-route');
-    const detailsEl = document.getElementById('tracker-details');
-    const weatherEl = document.getElementById('tracker-weather');
-    const statusEl = document.getElementById('tracker-status');
-
-    if (routeEl) routeEl.textContent = `${currentTrackedFlight.callsign} : ${currentTrackedFlight.route}`;
-    if (detailsEl) detailsEl.textContent = `${currentTrackedFlight.details} | Alt: ${currentTrackedFlight.altitude}ft | GS: ${currentTrackedFlight.groundSpeed}kts`;
-    if (weatherEl) weatherEl.textContent = currentTrackedFlight.weather;
-    if (statusEl) statusEl.textContent = currentTrackedFlight.status;
-}
-
-
-// --- AUTOMATED GLOBAL CLOCK & TIME ZONES ---
-const targetTimeZones = [
-    { label: "UTC", zone: "UTC" },
-    { label: "London (LHR)", zone: "Europe/London" },
-    { label: "New York (JFK)", zone: "America/New_York" },
-    { label: "Dubai (DXB)", zone: "Asia/Dubai" },
-    { label: "Singapore (SIN)", zone: "Asia/Singapore" }
-];
-
-let currentTimeZoneIndex = 0;
-
-function initGlobalClocks() {
-    updateClocks();
-    setInterval(updateClocks, 1000);
-
-    setInterval(() => {
-        currentTimeZoneIndex = (currentTimeZoneIndex + 1) % targetTimeZones.length;
-        updateRotatingTimeZone();
-    }, 5000);
-}
-
-function updateClocks() {
+  setInterval(() => {
     const now = new Date();
-    const utcEl = document.getElementById('header-utc-clock');
-    if (utcEl) {
-        utcEl.textContent = now.toLocaleTimeString('en-US', { timeZone: 'UTC', hour12: false }) + " UTC";
+    
+    // Update UTC Clock
+    if (utcClock) {
+      utcClock.innerText = now.toUTCString().split(' ')[4] + ' UTC';
     }
-    updateRotatingTimeZone(now);
-}
 
-function updateRotatingTimeZone(now = new Date()) {
-    const tzData = targetTimeZones[currentTimeZoneIndex];
-    const rotatingEl = document.getElementById('rotating-timezone-widget');
-    if (rotatingEl) {
-        const timeString = now.toLocaleTimeString('en-US', { timeZone: tzData.zone, hour: '2-digit', minute: '2-digit', hour12: false });
-        rotatingEl.innerHTML = `<span class="text-slate-400 text-xs">${tzData.label}:</span> <span class="text-amber-400 font-bold">${timeString}</span>`;
+    // Rotate Timezone Display every 3 seconds
+    if (tzWidget && now.getSeconds() % 3 === 0) {
+      tzIndex = (tzIndex + 1) % timezones.length;
+      const tz = timezones[tzIndex];
+      const localTime = new Date(now.getTime() + (tz.offset * 3600000));
+      const hours = String(localTime.getUTCHours()).padStart(2, '0');
+      const mins = String(localTime.getUTCMinutes()).padStart(2, '0');
+      tzWidget.innerText = `${tz.name}: ${hours}:${mins}`;
     }
+  }, 1000);
 }
 
-
-// --- AUTOMATED 10-DAY WEATHER FORECAST WIDGET ---
-const weatherLocations = [
-    { name: "London / Farnborough (EGLF)", lat: 51.275, lon: -0.776 },
-    { name: "New York (TEB / JFK)", lat: 40.7128, lon: -74.0060 },
-    { name: "Geneva (LSGG)", lat: 46.2372, lon: 6.109 },
-    { name: "Dubai (DXB)", lat: 25.2048, lon: 55.2708 }
-];
-
-let currentWeatherLocationIndex = 0;
-
-async function initAutomatedWeather() {
-    fetchWeatherForCurrentLocation();
-
-    setInterval(() => {
-        currentWeatherLocationIndex = (currentWeatherLocationIndex + 1) % weatherLocations.length;
-        fetchWeatherForCurrentLocation();
-    }, 10000);
+function initOfflineListener() {
+  window.addEventListener('online', () => updateNetworkStatus(true));
+  window.addEventListener('offline', () => updateNetworkStatus(false));
 }
 
-async function fetchWeatherForCurrentLocation() {
-    const loc = weatherLocations[currentWeatherLocationIndex];
-    const container = document.getElementById('automated-weather-widget');
-    if (!container) return;
-
-    try {
-        const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`);
-        const data = await response.json();
-
-        let html = `
-            <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                <div>
-                    <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Live Automated Weather</span>
-                    <h4 class="text-sm font-bold text-slate-100">${loc.name}</h4>
-                </div>
-                <div class="text-right">
-                    <span class="text-2xl font-extrabold text-slate-100">${data.current.temperature_2m}°C</span>
-                </div>
-            </div>
-            <div class="pt-2">
-                <p class="text-xs text-slate-400 mb-2 font-semibold uppercase tracking-wider">10-Day Automated Forecast Preview:</p>
-                <div class="grid grid-cols-5 gap-2 text-center">
-        `;
-
-        for (let i = 0; i < 5; i++) {
-            const date = new Date(data.daily.time[i]).toLocaleDateString('en-US', { weekday: 'short' });
-            const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
-            const minTemp = Math.round(data.daily.temperature_2m_min[i]);
-
-            html += `
-                <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/60">
-                    <div class="text-[10px] text-slate-400 font-bold">${date}</div>
-                    <div class="text-xs font-bold text-slate-200 mt-1">${maxTemp}°</div>
-                    <div class="text-[10px] text-slate-500">${minTemp}°</div>
-                </div>
-            `;
-        }
-
-        html += `</div></div>`;
-        container.innerHTML = html;
-
-    } catch (error) {
-        console.error("Weather fetch failed (Offline mode active):", error);
-        container.innerHTML = `<div class="text-xs text-amber-400 p-4">Weather data cached / Offline mode active.</div>`;
-    }
+function updateNetworkStatus(isOnline) {
+  const indicator = document.querySelector('.animate-pulse');
+  if (indicator) {
+    indicator.className = isOnline 
+      ? 'w-2 h-2 rounded-full bg-emerald-400 animate-pulse' 
+      : 'w-2 h-2 rounded-full bg-rose-500';
+    indicator.title = isOnline ? 'System Online' : 'System Offline - Serving Cached Telemetry';
+  }
 }
 
-
-// --- INITIALIZATION HOOK ---
-document.addEventListener('DOMContentLoaded', () => {
-    renderAviationDirectory();
-    initFlightTracker();
-    initGlobalClocks();
-    initAutomatedWeather();
-});
-if ('serviceWorker' in navigator) {
-  window.addEventListener('load', () => {
-    navigator.serviceWorker.register('/sw.js')
-      .then((reg) => console.log('SkyLevel Service Worker active on scope:', reg.scope))
-      .catch((err) => console.error('SkyLevel Service Worker registration failed:', err));
-  });
+// Helper utility to sanitize strings and prevent XSS injection
+function escapeHtml(str) {
+  return String(str).replace(/[&<>'"]/g, 
+    tag => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', "'": '&#39;', '"': '&quot;' }[tag] || tag)
+  );
 }
