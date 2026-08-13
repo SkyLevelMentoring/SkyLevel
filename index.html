@@ -11,21 +11,26 @@
 
     <div class="hero-background"></div>
 
-    <!-- Top Navigation Header -->
+    <!-- Top Navigation Header with All Links & Register Button -->
     <header class="sticky top-0 z-50 backdrop-blur-md bg-slate-900/80 border-b border-slate-800">
         <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
             <div class="flex items-center space-x-3">
                 <span class="text-xl font-bold tracking-wider text-amber-400">SKYLEVEL</span>
             </div>
             
-            <!-- Clickable Top Headings / Navigation -->
-            <nav class="hidden md:flex space-x-8 text-sm font-medium">
+            <!-- Navigation Links -->
+            <nav class="hidden md:flex space-x-6 text-sm font-medium items-center">
                 <button onclick="switchView('home')" class="nav-link text-amber-400 transition hover:text-amber-300" data-target="home">Home</button>
                 <button onclick="switchView('explore')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="explore">Explore</button>
                 <button onclick="switchView('catering')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="catering">Catering</button>
-                <button onclick="switchView('community')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="community">Community</button>
-                <button onclick="switchView('guides')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="guides">Guides</button>
+                <button onclick="switchView('community')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="community">Community / Social</button>
+                <button onclick="switchView('guides')" class="nav-link text-slate-400 transition hover:text-amber-300" data-target="guides">Mentoring & Guides</button>
             </nav>
+
+            <!-- Register / Action Button -->
+            <div>
+                <button onclick="switchView('register')" class="bg-amber-500 text-slate-950 text-sm font-semibold px-4 py-2 rounded-lg shadow hover:bg-amber-400 transition">Register</button>
+            </div>
         </div>
     </header>
 
@@ -37,8 +42,9 @@
             <div class="text-center py-16 space-y-4">
                 <h1 class="text-4xl md:text-6xl font-extrabold tracking-tight">Elevate Your <span class="text-amber-400">Aviation Workflow</span></h1>
                 <p class="max-w-2xl mx-auto text-slate-400 text-lg">The premier digital workspace built exclusively for private aviation crew, corporate flight attendants, and operators.</p>
-                <div class="pt-4">
+                <div class="pt-4 flex justify-center space-x-4">
                     <button onclick="switchView('catering')" class="bg-amber-500 text-slate-950 font-semibold px-6 py-3 rounded-xl shadow-lg hover:bg-amber-400 transition">Explore Catering Directory</button>
+                    <button onclick="switchView('guides')" class="bg-slate-800 text-slate-200 font-semibold px-6 py-3 rounded-xl border border-slate-700 hover:bg-slate-700 transition">View Guidebook</button>
                 </div>
             </div>
         </section>
@@ -51,20 +57,76 @@
 
         <!-- CATERING VIEW -->
         <section id="view-catering" class="app-view hidden space-y-6">
-            <h2 class="text-2xl font-bold text-amber-400">VIP Catering Directory</h2>
-            <p class="text-slate-400">Sourced premier private jet caterers worldwide.</p>
+            <div class="flex items-center justify-between">
+                <div>
+                    <h2 class="text-3xl font-bold text-amber-400">Global Aviation Directory</h2>
+                    <p class="text-slate-400">Continents, primary business aviation countries, and VIP handling hubs.</p>
+                </div>
+            </div>
+            <!-- Dynamic JavaScript populates continents/countries here -->
+            <div id="catering-content-list"></div>
         </section>
 
-        <!-- COMMUNITY VIEW -->
+        <!-- COMMUNITY VIEW (Social Threads / Posts) -->
         <section id="view-community" class="app-view hidden space-y-6">
-            <h2 class="text-2xl font-bold text-amber-400">Crew Network</h2>
-            <p class="text-slate-400">Connect securely with trusted aviation professionals.</p>
+            <div class="flex justify-between items-center">
+                <div>
+                    <h2 class="text-2xl font-bold text-amber-400">Crew Network & Social Threads</h2>
+                    <p class="text-slate-400">Connect securely, share sector updates, and post operational threads.</p>
+                </div>
+                <button class="bg-amber-500 text-slate-950 text-sm font-semibold px-4 py-2 rounded-lg hover:bg-amber-400 transition">+ New Post</button>
+            </div>
+            <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
+                <div class="flex items-center space-x-3">
+                    <div class="w-10 h-10 rounded-full bg-amber-500/20 flex items-center justify-center text-amber-400 font-bold">FA</div>
+                    <div>
+                        <h4 class="font-semibold text-slate-200">Corporate Flight Attendant Thread</h4>
+                        <p class="text-xs text-slate-400">Posted 2 hours ago in London (EGLF)</p>
+                    </div>
+                </div>
+                <p class="text-slate-300 text-sm">Looking for recommendations on reliable kosher catering providers around Farnborough. Any recent experiences?</p>
+            </div>
         </section>
 
-        <!-- GUIDES VIEW -->
+        <!-- GUIDES VIEW (Mentoring & Guidebook) -->
         <section id="view-guides" class="app-view hidden space-y-6">
-            <h2 class="text-2xl font-bold text-amber-400">Operational Guides</h2>
-            <p class="text-slate-400">Custom procedures, compliance checklists, and resource links.</p>
+            <h2 class="text-2xl font-bold text-amber-400">Operational Guides & Mentoring</h2>
+            <p class="text-slate-400">Custom procedures, compliance checklists, and professional mentor resources.</p>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-6 pt-4">
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-2">
+                    <h3 class="font-bold text-amber-300 text-lg">Flight Deck & Cabin Protocols</h3>
+                    <p class="text-slate-400 text-sm">Standard operating procedures for seamless cross-department communication mid-flight.</p>
+                </div>
+                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-2">
+                    <h3 class="font-bold text-amber-300 text-lg">Newhire & Mentoring Hub</h3>
+                    <p class="text-slate-400 text-sm">Direct resources and checklists for onboarding corporate aviation crew members.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- REGISTER VIEW -->
+        <section id="view-register" class="app-view hidden space-y-6 max-w-md mx-auto py-12">
+            <div class="bg-slate-900/80 border border-slate-800 p-8 rounded-2xl shadow-xl space-y-6">
+                <div class="text-center space-y-2">
+                    <h2 class="text-2xl font-bold text-amber-400">Join SkyLevel</h2>
+                    <p class="text-slate-400 text-sm">Create your professional private aviation account.</p>
+                </div>
+                <form class="space-y-4" onsubmit="event.preventDefault(); alert('Registration successful!');">
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Full Name</label>
+                        <input type="text" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Professional Email</label>
+                        <input type="email" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-400">
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold text-slate-300 uppercase mb-1">Role (e.g. Flight Attendant, Pilot)</label>
+                        <input type="text" required class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-slate-100 focus:outline-none focus:border-amber-400">
+                    </div>
+                    <button type="submit" class="w-full bg-amber-500 text-slate-950 font-semibold py-3 rounded-xl shadow hover:bg-amber-400 transition">Complete Registration</button>
+                </form>
+            </div>
         </section>
 
     </main>
