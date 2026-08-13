@@ -1,319 +1,413 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skylevel - Private Jet Charter & Management</title>
-    <!-- Tailwind CSS CDN -->
-    <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-amber-400 selection:text-slate-950">
+/**
+ * SKYLEVEL - Private Jet Charter & Management Platform
+ * Application Logic Engine (js/app.js)
+ */
 
-    <!-- Top Navigation / Header -->
-    <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
-            <!-- Brand / Logo Area -->
+document.addEventListener('DOMContentLoaded', () => {
+    initClocks();
+    initWeatherWidget();
+    initCharacterCounter();
+    initDirectoryData();
+});
+
+/* ==========================================================================
+   1. VIEW SWITCHING & NAVIGATION
+   ========================================================================== */
+
+/**
+ * Switches the active application view/tab.
+ * @param {string} viewId - ID target ('home', 'directory', 'catering', 'community', 'vault')
+ */
+function switchView(viewId) {
+    // Hide all view panels
+    const views = document.querySelectorAll('.app-view');
+    views.forEach(view => view.classList.add('hidden'));
+
+    // Reveal requested view
+    const targetView = document.getElementById(`view-${viewId}`);
+    if (targetView) {
+        targetView.classList.remove('hidden');
+    }
+
+    // Update Nav Button styling
+    const navButtons = document.querySelectorAll('.nav-link');
+    navButtons.forEach(btn => {
+        if (btn.getAttribute('data-target') === viewId) {
+            btn.className = 'nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-amber-400 bg-slate-800/60 border border-slate-700';
+        } else {
+            btn.className = 'nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200';
+        }
+    });
+
+    // Scroll back to top on view change
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+}
+
+
+/* ==========================================================================
+   2. GLOBAL HEADER CLOCKS & TIMEZONE WIDGET
+   ========================================================================== */
+
+function initClocks() {
+    const utcClockEl = document.getElementById('header-utc-clock');
+    const timezoneEl = document.getElementById('rotating-timezone-widget');
+
+    const timezones = [
+        { name: 'LON (GMT)', zone: 'Europe/London' },
+        { name: 'NYC (EST)', zone: 'America/New_York' },
+        { name: 'GVA (CET)', zone: 'Europe/Zurich' },
+        { name: 'DXB (GST)', zone: 'Asia/Dubai' },
+        { name: 'HND (JST)', zone: 'Asia/Tokyo' }
+    ];
+
+    let currentTzIdx = 0;
+
+    // Update real-time clock
+    function updateClock() {
+        const now = new Date();
+
+        // Standard UTC Output
+        if (utcClockEl) {
+            utcClockEl.textContent = `${now.toISOString().substring(11, 19)} UTC`;
+        }
+
+        // Rotating World Clocks
+        if (timezoneEl) {
+            const tz = timezones[currentTzIdx];
+            const tzTime = new Intl.DateTimeFormat('en-US', {
+                timeZone: tz.zone,
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                hour12: false
+            }).format(now);
+
+            timezoneEl.textContent = `${tz.name}: ${tzTime}`;
+        }
+    }
+
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Rotate local timezone readout every 4 seconds
+    setInterval(() => {
+        currentTzIdx = (currentTzIdx + 1) % timezones.length;
+    }, 4000);
+}
+
+
+/* ==========================================================================
+   3. HOME VIEW: FLIGHT TRACKER & WEATHER WIDGET
+   ========================================================================== */
+
+// Mock Flight Tracking Database
+const flightDatabase = {
+    'N750EX': {
+        route: 'N750EX : EGLF ✈️ LSGG',
+        details: 'Farnborough to Geneva • FL430 • Mach 0.82 | Alt: 43000ft | GS: 485kts',
+        weather: 'CAVOK 18°C',
+        status: 'On Schedule (-2m)',
+        statusColor: 'text-emerald-400',
+        radarUrl: 'https://globe.adsbexchange.com/?kiosk&zoom=5&lat=48.5&lon=3.0'
+    },
+    'G650LX': {
+        route: 'G650LX : KTEB ✈️ EGSS',
+        details: 'Teterboro to Stansted • FL450 • Mach 0.88 | Alt: 45000ft | GS: 520kts',
+        weather: 'Light Rain 12°C',
+        status: 'En-Route (On Time)',
+        statusColor: 'text-emerald-400',
+        radarUrl: 'https://globe.adsbexchange.com/?kiosk&zoom=4&lat=51.5&lon=-0.1'
+    },
+    'A6-RJA': {
+        route: 'A6-RJA : OMDB ✈️ LFPB',
+        details: 'Dubai Intl to Paris Le Bourget • FL410 • Mach 0.84 | Alt: 41000ft | GS: 490kts',
+        weather: 'Clear 22°C',
+        status: 'Delayed (+15m)',
+        statusColor: 'text-amber-400',
+        radarUrl: 'https://globe.adsbexchange.com/?kiosk&zoom=4&lat=48.9&lon=2.4'
+    }
+};
+
+// Track Button Click Event
+document.getElementById('track-btn')?.addEventListener('click', performFlightSearch);
+document.getElementById('flight-search-input')?.addEventListener('keypress', (e) => {
+    if (e.key === 'Enter') performFlightSearch();
+});
+
+function performFlightSearch() {
+    const input = document.getElementById('flight-search-input');
+    const query = input.value.trim().toUpperCase();
+
+    if (!query) {
+        alert('Please enter a valid Tail Number or Callsign.');
+        return;
+    }
+
+    const flightData = flightDatabase[query];
+
+    if (flightData) {
+        document.getElementById('tracker-route').textContent = flightData.route;
+        document.getElementById('tracker-details').textContent = flightData.details;
+        document.getElementById('tracker-weather').textContent = flightData.weather;
+
+        const statusEl = document.getElementById('tracker-status');
+        statusEl.textContent = flightData.status;
+        statusEl.className = `text-xs font-semibold ${flightData.statusColor}`;
+
+        // Update Radar iframe frame location if available
+        const radarFrame = document.getElementById('live-radar-frame');
+        if (radarFrame) radarFrame.src = flightData.radarUrl;
+    } else {
+        alert(`Flight search result for "${query}" not found in current active telemetry stream. Defaulting demo parameters.`);
+    }
+}
+
+// 10-Day Automated Weather Forecast Generator
+function initWeatherWidget() {
+    const container = document.getElementById('automated-weather-widget');
+    if (!container) return;
+
+    const days = ['Today', 'Tomorrow', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun', 'Mon', 'Tue', 'Wed'];
+    const icons = ['☀️', '🌤️', '⛅', '🌩️', '🌧️', '🌤️', '☀️', '⛅', '🌤️', '☀️'];
+    const temps = [18, 19, 17, 15, 14, 16, 20, 21, 19, 18];
+
+    let daysHtml = days.map((day, idx) => `
+        <div class="flex flex-col items-center justify-center p-2 rounded-xl bg-slate-900 border border-slate-800/60 min-w-[65px] text-center">
+            <span class="text-[10px] font-bold text-slate-400">${day}</span>
+            <span class="text-base my-1">${icons[idx]}</span>
+            <span class="text-xs font-extrabold text-slate-200">${temps[idx]}°C</span>
+        </div>
+    `).join('');
+
+    container.innerHTML = `
+        <div class="flex items-center justify-between border-b border-slate-800/80 pb-2">
+            <span class="text-[10px] uppercase font-bold text-slate-400 tracking-wider">10-Day Destination Weather Forecast (Geneva LSGG)</span>
+            <span class="text-[10px] font-mono text-emerald-400">Live Forecast Feed</span>
+        </div>
+        <div class="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
+            ${daysHtml}
+        </div>
+    `;
+}
+
+
+/* ==========================================================================
+   4. DIRECTORY VIEW LOGIC
+   ========================================================================== */
+
+const directoryData = [
+    {
+        region: 'Europe',
+        fbos: [
+            { name: 'Farnborough Airport (EGLF)', location: 'London, UK', handler: 'TAG Aviation FBO', freq: '122.35 MHz' },
+            { name: 'Geneva Cointrin (LSGG)', location: 'Geneva, Switzerland', handler: 'Jet Aviation / Signature', freq: '130.35 MHz' },
+            { name: 'Paris Le Bourget (LFPB)', location: 'Paris, France', handler: 'Dassault Falcon Service', freq: '131.70 MHz' }
+        ]
+    },
+    {
+        region: 'North America',
+        fbos: [
+            { name: 'Teterboro Airport (KTEB)', location: 'New Jersey / NYC, USA', handler: 'Meridian / Signature Flight Support', freq: '129.80 MHz' },
+            { name: 'Van Nuys Airport (KVNY)', location: 'Los Angeles, CA, USA', handler: 'Clay Lacy Aviation', freq: '130.50 MHz' },
+            { name: 'Miami Opa-locka (KOPF)', location: 'Miami, FL, USA', handler: 'Fontainebleau Aviation', freq: '128.95 MHz' }
+        ]
+    },
+    {
+        region: 'Middle East & Asia-Pacific',
+        fbos: [
+            { name: 'Dubai Al Maktoum (OMDW)', location: 'Dubai, UAE', handler: 'Jetex VIP Terminal', freq: '131.40 MHz' },
+            { name: 'Singapore Seletar (WSSL)', location: 'Singapore', handler: 'Universal Aviation', freq: '123.25 MHz' }
+        ]
+    }
+];
+
+function initDirectoryData() {
+    const listContainer = document.getElementById('directory-content-list');
+    if (!listContainer) return;
+
+    listContainer.innerHTML = directoryData.map(group => `
+        <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-6 space-y-4">
+            <h3 class="text-lg font-bold text-amber-400 border-b border-slate-800 pb-2">${group.region}</h3>
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                ${group.fbos.map(fbo => `
+                    <div class="bg-slate-950 border border-slate-800 p-4 rounded-xl space-y-2">
+                        <h4 class="text-xs font-bold text-slate-100">${fbo.name}</h4>
+                        <p class="text-[11px] text-slate-400">📍 ${fbo.location}</p>
+                        <p class="text-[11px] text-amber-400/90 font-medium">🏢 Handler: ${fbo.handler}</p>
+                        <span class="inline-block text-[10px] font-mono bg-slate-900 px-2 py-0.5 rounded border border-slate-800 text-slate-400">VHF: ${fbo.freq}</span>
+                    </div>
+                `).join('')}
+            </div>
+        </div>
+    `).join('');
+}
+
+
+/* ==========================================================================
+   5. COMMUNITY VIEW LOGIC
+   ========================================================================== */
+
+function switchCommunityTab(tab) {
+    const feedContent = document.getElementById('comm-content-feed');
+    const blogsContent = document.getElementById('comm-content-blogs');
+    const tabFeedBtn = document.getElementById('comm-tab-feed');
+    const tabBlogsBtn = document.getElementById('comm-tab-blogs');
+
+    if (tab === 'feed') {
+        feedContent.classList.remove('hidden');
+        blogsContent.classList.add('hidden');
+        tabFeedBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow';
+        tabBlogsBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200';
+    } else {
+        feedContent.classList.add('hidden');
+        blogsContent.classList.remove('hidden');
+        tabBlogsBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow';
+        tabFeedBtn.className = 'px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200';
+    }
+}
+
+// Post textarea character counter
+function initCharacterCounter() {
+    const input = document.getElementById('post-text-input');
+    const counter = document.getElementById('char-counter');
+
+    if (input && counter) {
+        input.addEventListener('input', () => {
+            counter.textContent = `${input.value.length} / 1000`;
+        });
+    }
+}
+
+// Publish Community Post
+function submitCommunityPost() {
+    const textarea = document.getElementById('post-text-input');
+    const mediaInput = document.getElementById('post-media-input');
+    const postsStream = document.getElementById('community-posts-stream');
+
+    const text = textarea.value.trim();
+    if (!text) {
+        alert('Please write something before publishing your post.');
+        return;
+    }
+
+    let mediaHtml = '';
+    if (mediaInput.files && mediaInput.files[0]) {
+        const file = mediaInput.files[0];
+        const fileUrl = URL.createObjectURL(file);
+        if (file.type.startsWith('video/')) {
+            mediaHtml = `<video src="${fileUrl}" controls class="w-full max-h-80 rounded-xl mt-3 object-cover border border-slate-800"></video>`;
+        } else {
+            mediaHtml = `<img src="${fileUrl}" class="w-full max-h-80 rounded-xl mt-3 object-cover border border-slate-800" alt="Uploaded post attachment" />`;
+        }
+    }
+
+    const newPostCard = document.createElement('div');
+    newPostCard.className = 'bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3 animate-fade-in';
+    newPostCard.innerHTML = `
+        <div class="flex items-center justify-between">
             <div class="flex items-center space-x-3">
-                <div id="network-status-indicator" class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                <!-- Custom SL ✈️ Logo Badge -->
-                <div class="flex items-center space-x-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl shadow-inner">
-                    <span class="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded-lg text-xs tracking-wider shadow">SL</span>
-                    <span class="text-amber-400 text-xs animate-pulse">✈️</span>
-                </div>
-                <h1 class="text-base font-extrabold tracking-tight text-slate-100">SKYLEVEL</h1>
-                <span id="network-status-text" class="text-xs text-slate-400 hidden sm:inline">Live Updates Active</span>
-            </div>
-            
-            <!-- Main Navigation Links -->
-            <nav class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto max-w-full pb-1 md:pb-0">
-                <button onclick="switchView('home')" data-target="home" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-amber-400 bg-slate-800/60 border border-slate-700">Home</button>
-                <button onclick="switchView('directory')" data-target="directory" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Directory</button>
-                <button onclick="switchView('catering')" data-target="catering" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Catering</button>
-                <button onclick="switchView('community')" data-target="community" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Community</button>
-                <button onclick="switchView('vault')" data-target="vault" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Secure Vault</button>
-            </nav>
-
-            <!-- Global Widgets Header -->
-            <div class="flex items-center space-x-4 text-xs font-mono">
-                <div id="header-utc-clock" class="bg-slate-950 px-3 py-1 rounded-xl border border-slate-800 text-slate-300">00:00:00 UTC</div>
-                <div id="rotating-timezone-widget" class="hidden sm:block bg-slate-950 px-3 py-1 rounded-xl border border-slate-800"></div>
-            </div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
-
-        <!-- ================= VIEW: HOME ================= -->
-        <div id="view-home" class="app-view space-y-8">
-            <!-- Hero Banner matching user interface -->
-            <div class="bg-gradient-to-b from-slate-900/80 to-slate-950 border border-slate-800/80 rounded-3xl p-8 md:p-16 text-center space-y-6 shadow-2xl">
-                <div class="inline-flex items-center space-x-2 bg-slate-900 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-bold text-amber-400">
-                    <span>✨</span>
-                    <span class="uppercase tracking-widest">Premier Private Aviation Workspace</span>
-                </div>
-                <h2 class="text-4xl md:text-6xl font-black text-slate-100 tracking-tight">SKYLEVEL</h2>
-                <p class="text-lg md:text-xl font-medium text-amber-400/90 tracking-wide">Elevate Your Aviation Workflow</p>
-                <p class="text-xs md:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                    The ultimate ecosystem engineered exclusively for private aviation crews, corporate flight attendants, captains, and operators worldwide.
-                </p>
-                <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
-                    <button onclick="switchView('catering')" class="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition">Explore Catering</button>
-                    <button onclick="switchView('community')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-extrabold text-xs rounded-xl shadow-lg transition">Join Community</button>
-                </div>
-            </div>
-
-            <!-- Top Hero Banner / Flight Tracker Card -->
-            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
-                    <div>
-                        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">Live Telemetry Feed</span>
-                        <h3 id="tracker-route" class="text-xl md:text-2xl font-extrabold text-slate-100 tracking-tight mt-1">N750EX : EGLF ✈️ LSGG</h3>
-                    </div>
-                    <div class="flex items-center space-x-3 w-full md:w-auto">
-                        <input type="text" id="flight-search-input" placeholder="Search Tail / Callsign (e.g. N750EX)" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-400 w-full md:w-64">
-                        <button id="track-btn" class="px-5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition whitespace-nowrap">Track</button>
-                    </div>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl space-y-1">
-                        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Flight Status & Route</span>
-                        <p id="tracker-details" class="text-xs font-semibold text-slate-200">Farnborough to Geneva • FL430 • Mach 0.82 | Alt: 43000ft | GS: 485kts</p>
-                    </div>
-                    <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl space-y-1">
-                        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Destination Weather</span>
-                        <p id="tracker-weather" class="text-xs font-semibold text-amber-400">CAVOK 18°C</p>
-                    </div>
-                    <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl space-y-1">
-                        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Schedule Condition</span>
-                        <p id="tracker-status" class="text-xs font-semibold text-emerald-400">On Schedule (-2m)</p>
-                    </div>
-                </div>
-
-                <!-- 10-Day Automated Weather Forecast Widget -->
-                <div id="automated-weather-widget" class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
-                    <!-- Populated dynamically -->
-                </div>
-            </div>
-
-            <!-- LIVE FLIGHT RADAR SECTION -->
-            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 md:p-8 space-y-4 shadow-2xl">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></div>
-                        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Global Business Aviation Live Radar</h3>
-                    </div>
-                    <div class="text-xs text-slate-400">Real-time ADS-B Airspace Traffic Feed</div>
-                </div>
-                
-                <!-- Interactive Radar Map Container -->
-                <div class="relative w-full h-96 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
-                    <iframe id="live-radar-frame" src="https://globe.adsbexchange.com/?kiosk&zoom=3&lat=35.0&lon=-40.0" class="w-full h-full border-0 filter invert hue-rotate-180 contrast-125 opacity-85"></iframe>
-                    <div class="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-800 px-4 py-2 rounded-xl text-[11px] text-slate-300 flex items-center space-x-3 shadow-lg">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span>Active Sector: European & North American Business Jets</span>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= VIEW: DIRECTORY ================= -->
-        <div id="view-directory" class="app-view hidden space-y-6">
-            <div class="border-b border-slate-800 pb-4">
-                <h2 class="text-2xl font-extrabold text-slate-100 tracking-tight">Global Aviation Directory & FBO Hubs</h2>
-                <p class="text-xs text-slate-400 mt-1">Select continents and countries to inspect major private aviation handling hubs and FBO networks.</p>
-            </div>
-            <div id="directory-content-list"></div>
-        </div>
-
-        <!-- ================= VIEW: CATERING ================= -->
-        <div id="view-catering" class="app-view hidden space-y-6 pb-12">
-            <div class="border-b border-slate-800 pb-4">
-                <h2 class="text-2xl font-extrabold text-slate-100 tracking-tight">Executive In-Flight Catering Menu</h2>
-                <p class="text-xs text-slate-400 mt-1">Custom gourmet selections, VIP dietary platters, and bespoke refreshment services.</p>
-            </div>
-            <div id="catering-content-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <!-- Catering Cards -->
-                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
-                    <span class="text-2xl">🥐</span>
-                    <h3 class="text-base font-bold text-amber-400">Continental Breakfast VIP</h3>
-                    <p class="text-xs text-slate-300 leading-relaxed">Artisanal pastries, fresh seasonal berries, Greek yogurt parfaits, freshly squeezed juices, and specialty espresso service.</p>
-                    <button onclick="alert('Catering option added to active flight plan.')" class="w-full mt-2 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/50 text-xs text-slate-200 font-bold rounded-xl transition">Select Option</button>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
-                    <span class="text-2xl">🍣</span>
-                    <h3 class="text-base font-bold text-amber-400">Executive Canapés & Seafood</h3>
-                    <p class="text-xs text-slate-300 leading-relaxed">Hand-crafted sushi selections, smoked salmon tartlets, premium caviar service with blinis, and curated artisan cheese boards.</p>
-                    <button onclick="alert('Catering option added to active flight plan.')" class="w-full mt-2 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/50 text-xs text-slate-200 font-bold rounded-xl transition">Select Option</button>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
-                    <span class="text-2xl">🥩</span>
-                    <h3 class="text-base font-bold text-amber-400">Warm Gourmet Dining</h3>
-                    <p class="text-xs text-slate-300 leading-relaxed">Pan-seared filet mignon with truffle reduction, herb-roasted Chilean sea bass, roasted seasonal vegetables, and molten chocolate cake.</p>
-                    <button onclick="alert('Catering option added to active flight plan.')" class="w-full mt-2 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/50 text-xs text-slate-200 font-bold rounded-xl transition">Select Option</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- ================= VIEW: COMMUNITY ================= -->
-        <div id="view-community" class="app-view hidden space-y-6 pb-12">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400 text-xs">SL</div>
                 <div>
-                    <h2 class="text-2xl font-extrabold text-slate-100 tracking-tight">Aviation Community & Blogs</h2>
-                    <p class="text-xs text-slate-400 mt-1">Share flight experiences, short stories, media, and follow your favorite travel logs.</p>
-                </div>
-                <div class="flex items-center space-x-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                    <button onclick="switchCommunityTab('feed')" id="comm-tab-feed" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow">Global Feed</button>
-                    <button onclick="switchCommunityTab('blogs')" id="comm-tab-blogs" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200">Travel Blogs</button>
+                    <h5 class="text-xs font-bold text-slate-200">You (Flight Crew)</h5>
+                    <span class="text-[10px] text-slate-500">Just now</span>
                 </div>
             </div>
-
-            <!-- TAB CONTENT: GLOBAL FEED -->
-            <div id="comm-content-feed" class="space-y-6">
-                <!-- Post Creation Card -->
-                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400">S</div>
-                        <div>
-                            <h4 class="text-sm font-bold text-slate-200">Share Your Experience</h4>
-                            <p class="text-[10px] text-slate-400">Short stories (max 1,000 characters), photos, or clips</p>
-                        </div>
-                    </div>
-                    <textarea id="post-text-input" maxlength="1000" rows="3" placeholder="Describe your latest flight, FBO experience, or aviation journey... (Max 1000 characters)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-400 resize-none"></textarea>
-                    <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-                        <div class="flex items-center space-x-3 w-full md:w-auto">
-                            <label class="cursor-pointer bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-slate-300 hover:border-slate-700 transition flex items-center space-x-2">
-                                <span>📷 Add Media (Photo/Video)</span>
-                                <input type="file" id="post-media-input" accept="image/*,video/*" class="hidden">
-                            </label>
-                            <span id="char-counter" class="text-[10px] text-slate-500 font-mono">0 / 1000</span>
-                        </div>
-                        <button onclick="submitCommunityPost()" class="w-full md:w-auto px-6 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition">Publish Post</button>
-                    </div>
-                </div>
-
-                <!-- Dynamic Post Stream -->
-                <div id="community-posts-stream" class="space-y-4">
-                    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center font-bold text-amber-400 text-xs">CP</div>
-                                <div>
-                                    <h5 class="text-xs font-bold text-slate-200">Captain Parker</h5>
-                                    <span class="text-[10px] text-slate-500">Transatlantic Crossing • 2 hours ago</span>
-                                </div>
-                            </div>
-                            <button class="text-xs text-amber-400 font-bold px-3 py-1 bg-amber-400/10 rounded-lg hover:bg-amber-400/20 transition">Subscribe Blog</button>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            Flawless sunset approach into Geneva (LSGG) tonight at FL430. Glassy air over the Alps made for an incredible ride. The FBO handling at private aviation tarmac was swift and efficient as always. ✈️✨
-                        </p>
-                        <div class="flex items-center space-x-6 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
-                            <button onclick="toggleLike(this)" class="flex items-center space-x-1.5 hover:text-amber-400 transition">
-                                <span>❤️</span> <span class="font-bold text-slate-200">42</span> Likes
-                            </button>
-                            <button class="flex items-center space-x-1.5 hover:text-amber-400 transition">
-                                <span>💬</span> <span class="font-bold text-slate-200">7</span> Comments
-                            </button>
-                        </div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- TAB CONTENT: TRAVEL BLOGS -->
-            <div id="comm-content-blogs" class="hidden space-y-4">
-                <h3 class="text-lg font-bold text-amber-400">Subscribed Travel Logs</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="subscribed-blogs-grid">
-                    <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-100">Global Jetsetter Log</h4>
-                                <p class="text-[10px] text-slate-400">Curated by Capt. Alex Vance</p>
-                            </div>
-                            <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg text-[10px] font-bold">Subscribed</span>
-                        </div>
-                        <p class="text-xs text-slate-300">Deep dives into private airport handling nuances across Asia-Pacific and Middle Eastern hubs.</p>
-                        <button class="w-full py-2 bg-slate-950 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 font-bold rounded-xl transition">View Full Log Entries</button>
-                    </div>
-                </div>
-            </div>
+            <span class="text-[10px] bg-slate-950 px-2 py-1 rounded text-slate-400 border border-slate-800">Verified Member</span>
         </div>
-
-        <!-- ================= VIEW: SECURE VAULT ================= -->
-        <div id="view-vault" class="app-view hidden space-y-6 pb-12">
-            <!-- Vault Auth Gate -->
-            <div id="vault-auth-screen" class="max-w-md mx-auto bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center space-y-6 shadow-2xl mt-12">
-                <div class="w-16 h-16 bg-amber-400/10 border border-amber-400/30 rounded-2xl mx-auto flex items-center justify-center text-2xl">🔒</div>
-                <div class="space-y-2">
-                    <h3 class="text-xl font-extrabold text-slate-100">Secure Personal Vault</h3>
-                    <p class="text-xs text-slate-400">Enter your secure PIN or password to access your encrypted favorites, custom catering notes, and saved destinations.</p>
-                </div>
-                <input type="password" id="vault-pin-input" maxlength="6" placeholder="Enter Vault PIN..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-center text-lg tracking-widest text-amber-400 focus:outline-none focus:border-amber-400">
-                <button onclick="unlockVault()" class="w-full py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition">Unlock Vault</button>
-            </div>
-
-            <!-- Unlocked Vault Panel -->
-            <div id="vault-content-panel" class="hidden space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                    <div>
-                        <h2 class="text-2xl font-extrabold text-slate-100 flex items-center space-x-2">
-                            <span>🛡️ Private Member Vault</span>
-                            <span class="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg font-mono">Encrypted Session</span>
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">Your personal preferences, private notes, and saved private aviation assets.</p>
-                    </div>
-                    <button onclick="lockVault()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-bold rounded-xl transition">Lock Vault</button>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Favorite Destinations -->
-                    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h4 class="text-sm font-bold text-amber-400">⭐️ Favorite Destinations</h4>
-                            <button onclick="addVaultItem('destination')" class="text-xs text-slate-400 hover:text-amber-400 font-bold">+ Add</button>
-                        </div>
-                        <div id="vault-destinations-list" class="space-y-2 text-xs text-slate-300">
-                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                                <span>Farnborough (EGLF) — UK</span>
-                                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>
-                            </div>
-                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                                <span>Geneva (LSGG) — Switzerland</span>
-                                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Preferred Catering -->
-                    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h4 class="text-sm font-bold text-amber-400">🍽️ Preferred Catering</h4>
-                            <button onclick="addVaultItem('catering')" class="text-xs text-slate-400 hover:text-amber-400 font-bold">+ Add</button>
-                        </div>
-                        <div id="vault-catering-list" class="space-y-2 text-xs text-slate-300">
-                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                                <span>VIP Platters • Fresh Berries & Espresso</span>
-                                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Secure Notes -->
-                    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h4 class="text-sm font-bold text-amber-400">📝 Secure Notes</h4>
-                            <button onclick="saveSecureNote()" class="text-xs text-amber-400 hover:underline font-bold">Save Note</button>
-                        </div>
-                        <textarea id="vault-secure-note" rows="4" placeholder="Write private handler contacts, tail specs, or custom notes here..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-400 resize-none">Custom ramp clearance contacts saved for London Luton FBO.</textarea>
-                    </div>
-                </div>
-            </div>
+        <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(text)}</p>
+        ${mediaHtml}
+        <div class="flex items-center space-x-6 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
+            <button onclick="toggleLike(this)" class="flex items-center space-x-1.5 hover:text-amber-400 transition">
+                <span>❤️</span> <span class="font-bold text-slate-200">0</span> Likes
+            </button>
+            <button class="flex items-center space-x-1.5 hover:text-amber-400 transition">
+                <span>💬</span> <span class="font-bold text-slate-200">0</span> Comments
+            </button>
         </div>
+    `;
 
-    </main>
+    postsStream.prepend(newPostCard);
 
-    <!-- App Logic Script -->
-    <script src="js/app.js"></script>
-</body>
-</html>
+    // Reset inputs
+    textarea.value = '';
+    mediaInput.value = '';
+    document.getElementById('char-counter').textContent = '0 / 1000';
+}
+
+// Like Button Handler
+function toggleLike(btnElement) {
+    const countSpan = btnElement.querySelector('span:nth-child(2)');
+    let currentLikes = parseInt(countSpan.textContent, 10) || 0;
+
+    if (btnElement.classList.contains('text-rose-500')) {
+        btnElement.classList.remove('text-rose-500');
+        countSpan.textContent = currentLikes - 1;
+    } else {
+        btnElement.classList.add('text-rose-500');
+        countSpan.textContent = currentLikes + 1;
+    }
+}
+
+
+/* ==========================================================================
+   6. SECURE VAULT VIEW LOGIC
+   ========================================================================== */
+
+function unlockVault() {
+    const pinInput = document.getElementById('vault-pin-input');
+    const authScreen = document.getElementById('vault-auth-screen');
+    const contentPanel = document.getElementById('vault-content-panel');
+
+    // PIN check (Accepts any 4 to 6 digit code for demo purposes)
+    if (pinInput.value.length >= 4) {
+        authScreen.classList.add('hidden');
+        contentPanel.classList.remove('hidden');
+        pinInput.value = '';
+    } else {
+        alert('Please enter a valid PIN (At least 4 digits).');
+    }
+}
+
+function lockVault() {
+    document.getElementById('vault-auth-screen').classList.remove('hidden');
+    document.getElementById('vault-content-panel').classList.add('hidden');
+}
+
+function addVaultItem(type) {
+    if (type === 'destination') {
+        const item = prompt('Enter new favorite airport destination (e.g. Paris Le Bourget - LFPB):');
+        if (item) {
+            const list = document.getElementById('vault-destinations-list');
+            const div = document.createElement('div');
+            div.className = 'bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center';
+            div.innerHTML = `<span>${escapeHtml(item)}</span><button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>`;
+            list.appendChild(div);
+        }
+    } else if (type === 'catering') {
+        const item = prompt('Enter preferred catering order reference:');
+        if (item) {
+            const list = document.getElementById('vault-catering-list');
+            const div = document.createElement('div');
+            div.className = 'bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center';
+            div.innerHTML = `<span>${escapeHtml(item)}</span><button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>`;
+            list.appendChild(div);
+        }
+    }
+}
+
+function saveSecureNote() {
+    alert('Encrypted secure note saved to local vault session.');
+}
+
+
+/* ==========================================================================
+   7. UTILITY FUNCTIONS
+   ========================================================================== */
+
+function escapeHtml(str) {
+    return str.replace(/&/g, "&amp;")
+              .replace(/</g, "&lt;")
+              .replace(/>/g, "&gt;")
+              .replace(/"/g, "&quot;")
+              .replace(/'/g, "&#039;");
+}
