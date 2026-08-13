@@ -1,10 +1,12 @@
 {
-  "name": "SkyLevel Aviation",
+  "name": "SkyLevel Aviation Workspace",
   "short_name": "SkyLevel",
-  "start_url": "/",
+  "description": "Private aviation workspace for charter, flight planning, FBO directory, and community feeds.",
+  "start_url": "./index.html",
   "display": "standalone",
-  "background_color": "#0b1220",
-  "theme_color": "#0b1220",
+  "orientation": "any",
+  "background_color": "#020617",
+  "theme_color": "#020617",
   "icons": [
     {
       "src": "favicon.ico",
@@ -14,12 +16,14 @@
     {
       "src": "icons/icon-192.png",
       "type": "image/png",
-      "sizes": "192x192"
+      "sizes": "192x192",
+      "purpose": "any maskable"
     },
     {
       "src": "icons/icon-512.png",
       "type": "image/png",
-      "sizes": "512x512"
+      "sizes": "512x512",
+      "purpose": "any maskable"
     }
   ]
 }
