@@ -744,7 +744,7 @@ function saveSecureNote() {
 
 
 
-// --- LIVE FLIGHT TRACKER ENGINE ---
+// --- LIVE FLIGHT TRACKER ENGINE (OPTIMIZED & RANDOMIZED) ---
 
 let flightTimer = null;
 
@@ -768,36 +768,67 @@ let currentTrackedFlight = {
 
 
 
-// Dynamic flight profile generator based on typed callsign / tail number
-function generateFlightProfile(callsign) {
-    const routes = [
-        { route: "EGLF ✈️ LSGG", desc: "Farnborough to Geneva", weather: "CAVOK 18°C", status: "On Schedule (-2m)" },
-        { route: "KTEB ✈️ KPBI", desc: "Teterboro to Palm Beach", weather: "SCT045 26°C", status: "On Time" },
-        { route: "OMDB ✈️ OMDW", desc: "Dubai to Al Maktoum", weather: "CAVOK 34°C", status: "Minor Flow Control (+5m)" },
-        { route: "LFPG ✈️ LFMN", desc: "Paris Le Bourget to Nice", weather: "FEW030 22°C", status: "On Schedule" },
-        { route: "CYYZ ✈️ KJFK", desc: "Toronto Pearson to New York JFK", weather: "BKN020 14°C", status: "Arrival Delay (+12m)" }
-    ];
+const randomFlightPool = [
 
-    let charSum = 0;
-    for (let i = 0; i < callsign.length; i++) {
-        charSum += callsign.charCodeAt(i);
-    }
-    const profile = routes[charSum % routes.length];
+    { callsign: "N750EX", route: "EGLF ✈️ LSGG", details: "Farnborough to Geneva • FL430 • Mach 0.82", weather: "CAVOK 18°C", status: "On Schedule (-2m)", alt: 43000, gs: 485 },
 
-    return {
-        callsign: callsign,
-        route: profile.route,
-        details: `${profile.desc} • FL${350 + (charSum % 10) * 2} • Mach 0.${80 + (charSum % 5)}`,
-        weather: profile.weather,
-        status: profile.status,
-        altitude: 35000 + (charSum % 8) * 1000,
-        groundSpeed: 450 + (charSum % 50)
-    };
-}
+    { callsign: "G-VIPX", route: "EGGW ✈️ LFMD", details: "Luton to Cannes Mandelieu • FL370 • Mach 0.78", weather: "SCT030 21°C", status: "On Time", alt: 37000, gs: 450 },
+
+    { callsign: "N888Z", route: "KTEB ✈️ KPBI", details: "Teterboro to Palm Beach • FL410 • Mach 0.80", weather: "FEW025 28°C", status: "Airborne", alt: 41000, gs: 468 },
+
+    { callsign: "A6-REG", route: "OMDB ✈️ OMDW", details: "Dubai to Al Maktoum • FL350 • Mach 0.76", weather: "CAVOK 36°C", status: "Climbing", alt: 35000, gs: 430 },
+
+    { callsign: "HB-JIV", route: "LSZH ✈️ KJFK", details: "Zurich to New York JFK • FL390 • Mach 0.84", weather: "BKN015 12°C", status: "On Schedule", alt: 39000, gs: 510 }
+
+];
 
 
 
 function initFlightTracker() {
+
+    // 1. Randomly pick an initial flight profile on app load to populate telemetry at the top
+
+    const randomIndex = Math.floor(Math.random() * randomFlightPool.length);
+
+    const chosen = randomFlightPool[randomIndex];
+
+    
+
+    currentTrackedFlight = {
+
+        callsign: chosen.callsign,
+
+        route: chosen.route,
+
+        details: chosen.details,
+
+        weather: chosen.weather,
+
+        status: chosen.status,
+
+        altitude: chosen.alt,
+
+        groundSpeed: chosen.gs
+
+    };
+
+    updateFlightUI();
+
+
+
+    // 2. Load the initial radar frame zoomed out with full zoom capabilities enabled (zoom=5 or 6 overview, interactive controls active)
+
+    const radarFrame = document.getElementById('live-radar-frame');
+
+    if (radarFrame) {
+
+        radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=6&icao=${encodeURIComponent(chosen.callsign)}&sel=${encodeURIComponent(chosen.callsign)}`;
+
+    }
+
+
+
+    // 3. Handle search updates from the user input field
 
     const trackButton = document.getElementById('track-btn');
 
@@ -812,25 +843,34 @@ function initFlightTracker() {
             const query = searchInput.value.trim();
 
             if (query) {
-                const upperCallsign = query.toUpperCase();
 
-                currentTrackedFlight = generateFlightProfile(upperCallsign);
+                const upperQuery = query.toUpperCase();
+
+                
+
+                // Generate dynamic profile data matching the searched registration/callsign
+
+                currentTrackedFlight.callsign = upperQuery;
+
+                currentTrackedFlight.route = `${upperQuery} ✈️ Destination Hub`;
+
+                currentTrackedFlight.details = `Custom Registration Lookup • FL390 • Mach 0.80`;
+
+                currentTrackedFlight.weather = `METAR Synced OK`;
+
+                currentTrackedFlight.status = `Live Track Active`;
 
                 updateFlightUI();
 
                 
 
-                const radarFrame = document.getElementById('live-radar-frame');
+                // Update radar frame with zoomed out / overview capability, locked onto the searched callsign
 
                 if (radarFrame) {
 
-                    radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=7&icao=&sel=${encodeURIComponent(upperCallsign)}`;
+                    radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=6&icao=${encodeURIComponent(upperQuery)}&sel=${encodeURIComponent(upperQuery)}`;
 
                 }
-
-
-
-                alert(`Now tracking flight / tail: ${currentTrackedFlight.callsign}`);
 
             }
 
