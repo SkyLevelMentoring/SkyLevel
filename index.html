@@ -1,545 +1,209 @@
 <!DOCTYPE html>
-<html lang="en">
 <html lang="en" class="dark">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skylevel - Private Jet Charter & Management</title>
     <title>SkyLevel — Executive Aviation & Concierge Hub</title>
-    <!-- Tailwind CSS CDN -->
     <script src="https://cdn.tailwindcss.com"></script>
     <script>
         tailwind.config = {
             darkMode: 'class',
             theme: {
                 extend: {
-                    colors: {
-                        amber: { 400: '#fbbf24', 500: '#f59e0b' }
-                    }
+                    colors: { amber: { 400: '#fbbf24', 500: '#f59e0b' } }
                 }
             }
-        }
+        };
     </script>
+    <style>
+        html { scroll-behavior: smooth; }
+        body { background: #020617; }
+        .hero-glow { text-shadow: 0 0 35px rgba(251, 191, 36, .18); }
+    </style>
 </head>
-<body class="bg-slate-950 text-slate-100 min-h-screen font-sans selection:bg-amber-400 selection:text-slate-950">
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col justify-between selection:bg-amber-400 selection:text-slate-950">
+<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen selection:bg-amber-400 selection:text-slate-950">
 
-    <!-- Top Navigation / Header -->
-    <header class="border-b border-slate-800 bg-slate-900/60 backdrop-blur-md sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 py-3 flex flex-col md:flex-row items-center justify-between gap-4">
-            <!-- Brand / Logo Area -->
-    <!-- TOP HEADER BAR -->
-    <header class="bg-slate-900/90 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <div id="network-status-indicator" class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                <!-- Custom SL ✈️ Logo Badge -->
-                <div class="flex items-center space-x-2 bg-slate-950 border border-slate-800 px-3 py-1.5 rounded-xl shadow-inner">
-                    <span class="bg-amber-400 text-slate-950 font-black px-2 py-0.5 rounded-lg text-xs tracking-wider shadow">SL</span>
-                    <span class="text-amber-400 text-xs animate-pulse">✈️</span>
-                </div>
-                <h1 class="text-base font-extrabold tracking-tight text-slate-100">SKYLEVEL</h1>
-                <span id="network-status-text" class="text-xs text-slate-400 hidden sm:inline">Live Updates Active</span>
-                <span class="text-2xl">✈️</span>
-                <span class="font-black tracking-wider text-amber-400 text-lg sm:text-xl">SKYLEVEL</span>
-            </div>
-            
-            <!-- Main Navigation Links -->
-            <nav class="flex items-center space-x-1 sm:space-x-2 overflow-x-auto max-w-full pb-1 md:pb-0">
-                <button onclick="switchView('home')" data-target="home" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-amber-400 bg-slate-800/60 border border-slate-700">Home</button>
-                <button onclick="switchView('directory')" data-target="directory" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Directory</button>
-                <button onclick="switchView('catering')" data-target="catering" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Catering</button>
-                <button onclick="switchView('community')" data-target="community" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Community</button>
-                <button onclick="switchView('vault')" data-target="vault" class="nav-link px-3 py-1.5 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Secure Vault</button>
-            </nav>
-
-            <!-- Global Widgets Header -->
-            <div class="flex items-center space-x-4 text-xs font-mono">
-                <div id="header-utc-clock" class="bg-slate-950 px-3 py-1 rounded-xl border border-slate-800 text-slate-300">00:00:00 UTC</div>
-                <div id="rotating-timezone-widget" class="hidden sm:block bg-slate-950 px-3 py-1 rounded-xl border border-slate-800"></div>
-            <!-- Global UTC & Rotating Clocks (Synced across mobile & desktop) -->
-            <div class="hidden md:flex items-center space-x-4 text-xs font-mono">
-                <div class="header-utc-clock-target bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 text-amber-400">00:00:00 UTC</div>
-                <div class="rotating-timezone-widget-target bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800"></div>
-            </div>
-
-            <div class="flex items-center space-x-2">
-                <span id="network-status-indicator" class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></span>
-                <span id="network-status-text" class="text-xs text-slate-400 hidden sm:inline">Live Updates Active</span>
-            </div>
+<header class="bg-slate-900/80 border-b border-slate-800 sticky top-0 z-50 backdrop-blur-md">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 h-14 flex items-center justify-between">
+        <div class="flex items-center gap-2 text-xs text-slate-400">
+            <span id="network-status-indicator" class="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse"></span>
+            <span id="network-status-text" class="hidden sm:inline">Live Updates Active</span>
         </div>
-    </header>
+        <div class="flex items-center gap-3 text-[11px] font-mono">
+            <div class="header-utc-clock-target bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 text-amber-400">00:00:00 UTC</div>
+            <div class="rotating-timezone-widget-target bg-slate-950 px-3 py-1.5 rounded-lg border border-slate-800 min-w-[115px] text-center"></div>
+        </div>
+    </div>
+</header>
 
-    <!-- Main Container -->
-    <main class="max-w-7xl mx-auto px-4 py-8">
-    <!-- MOBILE & TABLET CLOCK TICKER BAR -->
-    <div class="md:hidden bg-slate-900 border-b border-slate-800 px-4 py-2 flex justify-between items-center text-xs font-mono">
-        <div class="header-utc-clock-target text-amber-400">00:00:00 UTC</div>
-        <div class="rotating-timezone-widget-target"></div>
+<nav class="bg-slate-900/50 border-b border-slate-800 sticky top-14 z-40 backdrop-blur-md overflow-x-auto">
+    <div class="max-w-6xl mx-auto px-4 sm:px-6 flex justify-center gap-2 py-2.5 min-w-max">
+        <button onclick="switchView('home')" data-target="home" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-amber-400 bg-slate-800/60 border border-slate-700">Dashboard</button>
+        <button onclick="switchView('directory')" data-target="directory" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Aviation Directory</button>
+        <button onclick="switchView('catering')" data-target="catering" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Global Catering</button>
+        <button onclick="switchView('community')" data-target="community" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Community Hub</button>
+        <button onclick="switchView('vault')" data-target="vault" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Secure Vault</button>
+    </div>
+</nav>
+
+<main class="w-full max-w-6xl mx-auto px-4 sm:px-6 py-10">
+
+    <!-- HOME -->
+    <div id="view-home" class="app-view space-y-10">
+        <section class="text-center max-w-4xl mx-auto">
+            <div class="text-4xl mb-3">✈️</div>
+            <h1 class="hero-glow text-5xl sm:text-7xl font-black tracking-[0.18em] text-amber-400">SKYLEVEL</h1>
+            <p class="mt-3 text-sm sm:text-base uppercase tracking-[0.35em] text-slate-400">Executive Aviation & Concierge</p>
+            <p class="mt-5 max-w-xl mx-auto text-sm text-slate-500 leading-relaxed">Your private aviation hub for community connections, executive catering, global aviation intelligence, and live flight tracking.</p>
+        </section>
+
+        <!-- TWO MAIN ACTION BUTTONS: SIDE BY SIDE -->
+        <section class="max-w-2xl mx-auto grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <a href="signup.html" class="group flex items-center justify-center min-h-16 rounded-2xl border border-amber-400/50 bg-amber-400 text-slate-950 font-black text-sm uppercase tracking-wider shadow-lg shadow-amber-400/10 hover:bg-amber-300 hover:-translate-y-0.5 transition">
+                <span>Join Community</span>
+                <span class="ml-2 transition group-hover:translate-x-1">→</span>
+            </a>
+            <button onclick="switchView('catering')" class="group flex items-center justify-center min-h-16 rounded-2xl border border-slate-700 bg-slate-900 text-amber-400 font-black text-sm uppercase tracking-wider hover:bg-slate-800 hover:border-amber-400/50 hover:-translate-y-0.5 transition">
+                <span>Order Catering</span>
+                <span class="ml-2 transition group-hover:translate-x-1">→</span>
+            </button>
+        </section>
+
+        <!-- EVERYTHING ELSE IS UNDER THE BUTTONS -->
+        <section class="grid grid-cols-1 lg:grid-cols-2 gap-6 max-w-5xl mx-auto">
+            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl">
+                <div id="automated-weather-widget" class="space-y-4">
+                    <div class="text-xs text-amber-400">Loading automated weather telemetry...</div>
+                </div>
+            </div>
+
+            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl flex flex-col justify-center text-center">
+                <div class="text-xs font-bold uppercase tracking-[0.2em] text-amber-400">SkyAgent AI Status</div>
+                <h3 class="mt-3 text-xl font-bold">Concierge Systems Ready</h3>
+                <p class="mt-2 text-xs text-slate-400 leading-relaxed">System readiness nominal. Ready to process flight catering requests, FBO dispatch information, and executive aviation queries.</p>
+            </div>
+        </section>
+
+        <!-- FLIGHT TRACKER AT THE BOTTOM -->
+        <section class="max-w-5xl mx-auto bg-slate-900/80 border border-slate-800 p-5 sm:p-6 rounded-2xl space-y-4">
+            <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
+                <div class="text-center lg:text-left">
+                    <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Live ADS-B Radar Sync</span>
+                    <h3 id="tracker-route" class="text-lg font-extrabold text-slate-100">N750EX : EGLF ✈️ LSGG</h3>
+                    <div id="tracker-details" class="text-xs text-slate-400 mt-1">Farnborough to Geneva • FL430 • Mach 0.82</div>
+                </div>
+                <div class="flex gap-2 max-w-md w-full lg:w-auto mx-auto lg:mx-0">
+                    <input type="text" id="flight-search-input" placeholder="Callsign (e.g. N888Z)" class="flex-1 lg:w-64 bg-slate-950 border border-slate-800 rounded-xl px-3 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
+                    <button id="track-btn" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-4 py-2 rounded-xl text-xs transition">Track</button>
+                </div>
+            </div>
+
+            <div class="w-full h-[360px] sm:h-[480px] rounded-xl overflow-hidden border border-slate-800 bg-slate-950">
+                <iframe id="live-radar-frame" title="Live flight radar" class="w-full h-full border-0"></iframe>
+            </div>
+
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-400 pt-2 border-t border-slate-800">
+                <span id="tracker-weather">CAVOK 18°C</span>
+                <span id="tracker-status" class="font-bold text-emerald-400">On Schedule (-2m)</span>
+            </div>
+        </section>
     </div>
 
-        <!-- ================= VIEW: HOME ================= -->
-        <div id="view-home" class="app-view space-y-8">
-            <!-- Hero Banner matching user interface -->
-            <div class="bg-gradient-to-b from-slate-900/80 to-slate-950 border border-slate-800/80 rounded-3xl p-8 md:p-16 text-center space-y-6 shadow-2xl">
-                <div class="inline-flex items-center space-x-2 bg-slate-900 border border-slate-800 px-4 py-1.5 rounded-full text-xs font-bold text-amber-400">
-                    <span>✨</span>
-                    <span class="uppercase tracking-widest">Premier Private Aviation Workspace</span>
-                </div>
-                <h2 class="text-4xl md:text-6xl font-black text-slate-100 tracking-tight">SKYLEVEL</h2>
-                <p class="text-lg md:text-xl font-medium text-amber-400/90 tracking-wide">Elevate Your Aviation Workflow</p>
-                <p class="text-xs md:text-sm text-slate-400 max-w-2xl mx-auto leading-relaxed">
-                    The ultimate ecosystem engineered exclusively for private aviation crews, corporate flight attendants, captains, and operators worldwide.
-                </p>
-                <div class="flex flex-wrap items-center justify-center gap-4 pt-4">
-                    <button onclick="switchView('catering')" class="px-6 py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition">Explore Catering</button>
-                    <button onclick="switchView('community')" class="px-6 py-3 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-slate-200 font-extrabold text-xs rounded-xl shadow-lg transition">Join Community</button>
-                </div>
-            </div>
-    <!-- MAIN NAVIGATION BAR -->
-    <nav class="bg-slate-900/60 border-b border-slate-800 sticky top-16 z-40 backdrop-blur-md overflow-x-auto">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 flex space-x-2 py-3">
-            <button onclick="switchView('home')" data-target="home" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-amber-400 bg-slate-800/60 border border-slate-700 whitespace-nowrap">Dashboard</button>
-            <button onclick="switchView('directory')" data-target="directory" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200 whitespace-nowrap">Aviation Directory</button>
-            <button onclick="switchView('catering')" data-target="catering" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200 whitespace-nowrap">Global Catering</button>
-            <button onclick="switchView('community')" data-target="community" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200 whitespace-nowrap">Community Hub</button>
-            <button onclick="switchView('vault')" data-target="vault" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200 whitespace-nowrap">Secure Vault</button>
+    <!-- AVIATION DIRECTORY -->
+    <div id="view-directory" class="app-view hidden space-y-6">
+        <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+            <h3 class="text-xl font-bold text-amber-400">Global Private Aviation Hubs</h3>
+            <p class="text-xs text-slate-400">Select a continent and country below to explore major international private aviation airports, handlers, and FBO networks.</p>
+            <div id="directory-content-list" class="space-y-6"></div>
         </div>
-    </nav>
+    </div>
 
-            <!-- Top Hero Banner / Flight Tracker Card -->
-            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 md:p-8 space-y-6 shadow-2xl">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800/80 pb-4">
-                    <div>
-                        <span class="text-xs font-bold text-amber-400 uppercase tracking-widest">Live Telemetry Feed</span>
-                        <h3 id="tracker-route" class="text-xl md:text-2xl font-extrabold text-slate-100 tracking-tight mt-1">N750EX : EGLF ✈️ LSGG</h3>
-                    </div>
-                    <div class="flex items-center space-x-3 w-full md:w-auto">
-                        <input type="text" id="flight-search-input" placeholder="Search Tail / Callsign (e.g. N750EX)" class="bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-xs text-slate-200 focus:outline-none focus:border-amber-400 w-full md:w-64">
-                        <button id="track-btn" class="px-5 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition whitespace-nowrap">Track</button>
-                    </div>
-                </div>
-    <!-- MAIN VIEW CONTAINER -->
-    <main class="flex-grow max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6">
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl space-y-1">
-                        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Flight Status & Route</span>
-                        <p id="tracker-details" class="text-xs font-semibold text-slate-200">Farnborough to Geneva • FL430 • Mach 0.82 | Alt: 43000ft | GS: 485kts</p>
-                    </div>
-                    <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl space-y-1">
-                        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Destination Weather</span>
-                        <p id="tracker-weather" class="text-xs font-semibold text-amber-400">CAVOK 18°C</p>
-        <!-- VIEW 1: HOME DASHBOARD -->
-        <div id="view-home" class="app-view space-y-6">
-            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
-                
-                <!-- Live Flight Tracker Panel -->
-                <div class="lg:col-span-2 bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
-                    <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-                        <div>
-                            <span class="text-xs font-bold uppercase tracking-wider text-amber-400">Live ADS-B Radar Sync</span>
-                            <h3 id="tracker-route" class="text-lg font-extrabold text-slate-100">N750EX : EGLF ✈️ LSGG</h3>
-                        </div>
-                        <div class="flex items-center space-x-2">
-                            <input type="text" id="flight-search-input" placeholder="Callsign (e.g. N888Z)" class="bg-slate-950 border border-slate-800 rounded-xl px-3 py-1.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-                            <button id="track-btn" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-4 py-1.5 rounded-xl text-xs transition">Track</button>
-                        </div>
-                    </div>
-                    <div class="bg-slate-950/80 border border-slate-800 p-4 rounded-2xl space-y-1">
-                        <span class="text-[10px] uppercase font-bold text-slate-500 tracking-wider">Schedule Condition</span>
-                        <p id="tracker-status" class="text-xs font-semibold text-emerald-400">On Schedule (-2m)</p>
-
-                    <div id="tracker-details" class="text-xs text-slate-400">Farnborough to Geneva • FL430 • Mach 0.82 | Alt: 43000ft | GS: 485kts</div>
-
-                    <div class="w-full h-80 rounded-xl overflow-hidden border border-slate-800 bg-slate-950 relative">
-                        <iframe id="live-radar-frame" class="w-full h-full border-0"></iframe>
-                    </div>
-                </div>
-
-                <!-- 10-Day Automated Weather Forecast Widget -->
-                <div id="automated-weather-widget" class="bg-slate-950/80 border border-slate-800 p-5 rounded-2xl space-y-3">
-                    <!-- Populated dynamically -->
-                    <div class="flex items-center justify-between text-xs text-slate-400 pt-2 border-t border-slate-800">
-                        <span id="tracker-weather">CAVOK 18°C</span>
-                        <span id="tracker-status" class="font-bold text-emerald-400">On Schedule (-2m)</span>
-                    </div>
-                </div>
-            </div>
-
-            <!-- LIVE FLIGHT RADAR SECTION -->
-            <div class="bg-slate-900/60 backdrop-blur-md border border-slate-800/80 rounded-3xl p-6 md:p-8 space-y-4 shadow-2xl">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-3 h-3 rounded-full bg-amber-400 animate-ping"></div>
-                        <h3 class="text-xs font-bold text-slate-200 uppercase tracking-wider">Global Business Aviation Live Radar</h3>
-                <!-- Automated Weather Widget -->
-                <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4 flex flex-col justify-between">
-                    <div id="automated-weather-widget" class="space-y-4">
-                        <div class="text-xs text-amber-400">Loading automated weather telemetry...</div>
-                    </div>
-                    <div class="text-xs text-slate-400">Real-time ADS-B Airspace Traffic Feed</div>
-                </div>
-                
-                <!-- Interactive Radar Map Container -->
-                <div class="relative w-full h-96 rounded-2xl overflow-hidden border border-slate-800 bg-slate-950">
-                    <iframe id="live-radar-frame" src="https://globe.adsbexchange.com/?kiosk&zoom=3&lat=35.0&lon=-40.0" class="w-full h-full border-0 filter invert hue-rotate-180 contrast-125 opacity-85"></iframe>
-                    <div class="absolute bottom-4 left-4 bg-slate-950/80 backdrop-blur-md border border-slate-800 px-4 py-2 rounded-xl text-[11px] text-slate-300 flex items-center space-x-3 shadow-lg">
-                        <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
-                        <span>Active Sector: European & North American Business Jets</span>
-                    <div class="bg-slate-950 p-4 rounded-xl border border-slate-800 text-xs text-slate-400 space-y-1">
-                        <div class="font-bold text-amber-400">SkyAgent AI Status</div>
-                        <div>System readiness nominal. Ready to process flight catering & FBO dispatches.</div>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- ================= VIEW: DIRECTORY ================= -->
-        <!-- VIEW 2: AVIATION DIRECTORY -->
-        <div id="view-directory" class="app-view hidden space-y-6">
-            <div class="border-b border-slate-800 pb-4">
-                <h2 class="text-2xl font-extrabold text-slate-100 tracking-tight">Global Aviation Directory & FBO Hubs</h2>
-                <p class="text-xs text-slate-400 mt-1">Select continents and countries to inspect major private aviation handling hubs and FBO networks.</p>
-            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4">
-                <h3 class="text-xl font-bold text-amber-400">Global Private Aviation Hubs</h3>
-                <p class="text-xs text-slate-400">Select a continent and country below to explore major international private aviation airports, handlers, and FBO networks.</p>
-                <div id="directory-content-list" class="space-y-6"></div>
-            </div>
-            <div id="directory-content-list"></div>
-        </div>
-
-        <!-- ================= VIEW: CATERING ================= -->
-        <div id="view-catering" class="app-view hidden space-y-6 pb-12">
-            <div class="border-b border-slate-800 pb-4">
-                <h2 class="text-2xl font-extrabold text-slate-100 tracking-tight">Executive In-Flight Catering Menu</h2>
-                <p class="text-xs text-slate-400 mt-1">Custom gourmet selections, VIP dietary platters, and bespoke refreshment services.</p>
-            </div>
-            <div id="catering-content-list" class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
-                    <span class="text-2xl">🥐</span>
-                    <h3 class="text-base font-bold text-amber-400">Continental Breakfast VIP</h3>
-                    <p class="text-xs text-slate-300 leading-relaxed">Artisanal pastries, fresh seasonal berries, Greek yogurt parfaits, freshly squeezed juices, and specialty espresso service.</p>
-                    <button onclick="alert('Catering option added to active flight plan.')" class="w-full mt-2 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/50 text-xs text-slate-200 font-bold rounded-xl transition">Select Option</button>
-        <!-- VIEW 3: GLOBAL CATERING DIRECTORY -->
-        <div id="view-catering" class="app-view hidden space-y-6">
-            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-6">
-                <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-amber-400">Global Private Jet Catering Directory</h3>
-                        <p class="text-xs text-slate-400">Explore vetted private aviation kitchens across the UK, Europe, US, Africa, South America, Middle East, and Asia.</p>
-                    </div>
-                    <!-- Search Bar for Catering -->
-                    <div class="w-full md:w-72">
-                        <input type="text" id="catering-search-bar" placeholder="Search by name, region, country..." class="w-full bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-                    </div>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
-                    <span class="text-2xl">🍣</span>
-                    <h3 class="text-base font-bold text-amber-400">Executive Canapés & Seafood</h3>
-                    <p class="text-xs text-slate-300 leading-relaxed">Hand-crafted sushi selections, smoked salmon tartlets, premium caviar service with blinis, and curated artisan cheese boards.</p>
-                    <button onclick="alert('Catering option added to active flight plan.')" class="w-full mt-2 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/50 text-xs text-slate-200 font-bold rounded-xl transition">Select Option</button>
-
-                <!-- Region Filter Buttons -->
-                <div class="flex flex-wrap gap-2 overflow-x-auto pb-2">
-                    <button onclick="filterCatering('all', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-amber-400 text-slate-950 shadow">All Regions</button>
-                    <button onclick="filterCatering('favorites', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200">❤️ Favorites</button>
-                    <button onclick="filterCatering('uk', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200">🇬🇧 United Kingdom</button>
-                    <button onclick="filterCatering('europe', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200">🇪🇺 Europe</button>
-                    <button onclick="filterCatering('us', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200">🇺🇸 United States</button>
-                    <button onclick="filterCatering('me', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200">🇦🇪 Middle East</button>
-                    <button onclick="filterCatering('asia', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200">🇸🇬 Asia</button>
-                    <button onclick="filterCatering('africa', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200">🇿🇦 Africa</button>
-                    <button onclick="filterCatering('sa', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200">🇧🇷 South America</button>
-                </div>
-                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-3">
-                    <span class="text-2xl">🥩</span>
-                    <h3 class="text-base font-bold text-amber-400">Warm Gourmet Dining</h3>
-                    <p class="text-xs text-slate-300 leading-relaxed">Pan-seared filet mignon with truffle reduction, herb-roasted Chilean sea bass, roasted seasonal vegetables, and molten chocolate cake.</p>
-                    <button onclick="alert('Catering option added to active flight plan.')" class="w-full mt-2 py-2 bg-slate-950 border border-slate-800 hover:border-amber-400/50 text-xs text-slate-200 font-bold rounded-xl transition">Select Option</button>
-
-                <!-- Catering Grid Cards -->
-                <div id="catering-directory-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
-
-                <!-- Community Submission Form (Reddit Style with Host Review) -->
-                <div class="mt-12 bg-slate-950/80 border border-slate-800 p-6 rounded-2xl space-y-4">
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xl">💡</span>
-                        <h4 class="text-base font-bold text-amber-400">Submit a Catering Vendor (Community Notes & Approval)</h4>
-                    </div>
-                    <p class="text-xs text-slate-400">Know a premier private jet caterer not listed here? Submit them to the community queue. Entries undergo host review and community note validation.</p>
-                    
-                    <form id="catering-submission-form" onsubmit="submitUserCateringVendor(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                        <input type="text" id="new-vendor-name" placeholder="Company Name *" required class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-                        <select id="new-vendor-region" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-                            <option value="Europe">Europe</option>
-                            <option value="United Kingdom">United Kingdom</option>
-                            <option value="United States">United States</option>
-                            <option value="Middle East">Middle East</option>
-                            <option value="Asia">Asia</option>
-                            <option value="Africa">Africa</option>
-                            <option value="South America">South America</option>
-                        </select>
-                        <input type="text" id="new-vendor-country" placeholder="Country (e.g. France, Germany)" required class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-                        <input type="text" id="new-vendor-flag" placeholder="Flag Emoji (e.g. 🇫🇷)" class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-                        <input type="text" id="new-vendor-phone" placeholder="Phone Number *" required class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-                        <input type="email" id="new-vendor-email" placeholder="Dispatch Email *" required class="bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-                        <input type="url" id="new-vendor-website" placeholder="Website / Menu URL" class="md:col-span-2 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
-                        <textarea id="new-vendor-notes" placeholder="Notes / FBO Hubs served..." rows="2" class="md:col-span-2 bg-slate-900 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400"></textarea>
-                        <div>
-                            <button type="submit" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs transition">Submit for Review</button>
-                        </div>
-                    </form>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- ================= VIEW: COMMUNITY ================= -->
-        <div id="view-community" class="app-view hidden space-y-6 pb-12">
-            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+    <!-- CATERING -->
+    <div id="view-catering" class="app-view hidden space-y-6">
+        <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-6">
+            <div class="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                    <h2 class="text-2xl font-extrabold text-slate-100 tracking-tight">Aviation Community & Blogs</h2>
-                    <p class="text-xs text-slate-400 mt-1">Share flight experiences, short stories, media, and follow your favorite travel logs.</p>
+                    <h3 class="text-xl font-bold text-amber-400">Global Private Jet Catering Directory</h3>
+                    <p class="text-xs text-slate-400">Explore executive aviation kitchens across the UK, Europe, US, Africa, South America, Middle East, and Asia.</p>
                 </div>
-                <div class="flex items-center space-x-2 bg-slate-900 p-1 rounded-xl border border-slate-800">
-                    <button onclick="switchCommunityTab('feed')" id="comm-tab-feed" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow">Global Feed</button>
-                    <button onclick="switchCommunityTab('blogs')" id="comm-tab-blogs" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200">Travel Blogs</button>
-        <!-- VIEW 4: COMMUNITY HUB (Captain Parker removed) -->
-        <div id="view-community" class="app-view hidden space-y-6">
-            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                    <div>
-                        <h3 class="text-xl font-bold text-amber-400">Skylevel Aviation Community Hub</h3>
-                        <p class="text-xs text-slate-400">Connect with fellow flight crew, private jet managers, and aviation enthusiasts.</p>
-                    </div>
-                    <div class="flex space-x-2">
-                        <button onclick="switchCommunityTab('feed')" id="comm-tab-feed" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow">Community Feed</button>
-                        <button onclick="switchCommunityTab('blogs')" id="comm-tab-blogs" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200">Articles & Logs</button>
-                    </div>
-                </div>
+                <input type="text" id="catering-search-bar" placeholder="Search by name, region, country..." class="w-full md:w-72 bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400">
             </div>
+            <div class="flex flex-wrap gap-2">
+                <button onclick="filterCatering('all', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-amber-400 text-slate-950 shadow">All Regions</button>
+                <button onclick="filterCatering('favorites', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400">❤️ Favorites</button>
+                <button onclick="filterCatering('uk', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400">🇬🇧 United Kingdom</button>
+                <button onclick="filterCatering('europe', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400">🇪🇺 Europe</button>
+                <button onclick="filterCatering('us', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400">🇺🇸 United States</button>
+                <button onclick="filterCatering('me', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400">🇦🇪 Middle East</button>
+                <button onclick="filterCatering('asia', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400">🇸🇬 Asia</button>
+                <button onclick="filterCatering('africa', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400">🇿🇦 Africa</button>
+                <button onclick="filterCatering('sa', this)" class="catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold bg-slate-900 border border-slate-800 text-slate-400">🇧🇷 South America</button>
+            </div>
+            <div id="catering-directory-grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6"></div>
 
-            <!-- TAB CONTENT: GLOBAL FEED -->
+            <div class="mt-8 bg-slate-950/80 border border-slate-800 p-6 rounded-2xl space-y-4">
+                <h4 class="text-base font-bold text-amber-400">Submit a Catering Vendor</h4>
+                <p class="text-xs text-slate-400">Know a premier private jet caterer not listed here? Submit them to the community queue for review.</p>
+                <form id="catering-submission-form" onsubmit="submitUserCateringVendor(event)" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <input type="text" id="new-vendor-name" placeholder="Company Name *" required class="field">
+                    <select id="new-vendor-region" class="field"><option>Europe</option><option>United Kingdom</option><option>United States</option><option>Middle East</option><option>Asia</option><option>Africa</option><option>South America</option></select>
+                    <input type="text" id="new-vendor-country" placeholder="Country *" required class="field">
+                    <input type="text" id="new-vendor-flag" placeholder="Flag Emoji (e.g. 🇫🇷)" class="field">
+                    <input type="text" id="new-vendor-phone" placeholder="Phone Number *" required class="field">
+                    <input type="email" id="new-vendor-email" placeholder="Dispatch Email *" required class="field">
+                    <input type="url" id="new-vendor-website" placeholder="Website / Menu URL" class="field md:col-span-2">
+                    <textarea id="new-vendor-notes" placeholder="Notes / FBO Hubs served..." rows="2" class="field md:col-span-2"></textarea>
+                    <button type="submit" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs transition w-fit">Submit for Review</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- COMMUNITY -->
+    <div id="view-community" class="app-view hidden space-y-6">
+        <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-6">
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-slate-800 pb-4">
+                <div><h3 class="text-xl font-bold text-amber-400">Skylevel Aviation Community Hub</h3><p class="text-xs text-slate-400">Connect with fellow flight crew, private jet managers, and aviation enthusiasts.</p></div>
+                <div class="flex gap-2"><button onclick="switchCommunityTab('feed')" id="comm-tab-feed" class="px-4 py-2 rounded-lg text-xs font-bold bg-amber-400 text-slate-950">Community Feed</button><button onclick="switchCommunityTab('blogs')" id="comm-tab-blogs" class="px-4 py-2 rounded-lg text-xs font-bold text-slate-400">Articles & Logs</button></div>
+            </div>
             <div id="comm-content-feed" class="space-y-6">
-                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-4 shadow-xl">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400">S</div>
-                        <div>
-                            <h4 class="text-sm font-bold text-slate-200">Share Your Experience</h4>
-                            <p class="text-[10px] text-slate-400">Short stories (max 1,000 characters), photos, or clips</p>
-                        </div>
-                    </div>
-                    <textarea id="post-text-input" maxlength="1000" rows="3" placeholder="Describe your latest flight, FBO experience, or aviation journey... (Max 1000 characters)" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-400 resize-none"></textarea>
-                    <div class="flex flex-col md:flex-row items-center justify-between gap-3">
-                        <div class="flex items-center space-x-3 w-full md:w-auto">
-                            <label class="cursor-pointer bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-slate-300 hover:border-slate-700 transition flex items-center space-x-2">
-                                <span>📷 Add Media (Photo/Video)</span>
-                                <input type="file" id="post-media-input" accept="image/*,video/*" class="hidden">
-                            </label>
-                <!-- Community Feed Tab -->
-                <div id="comm-content-feed" class="space-y-6">
-                    <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
-                        <textarea id="post-text-input" placeholder="Share an aviation experience, FBO tip, or catering recommendation (max 1000 characters)..." rows="3" class="w-full bg-slate-900 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-400"></textarea>
-                        <div class="flex justify-between items-center">
-                            <span id="char-counter" class="text-[10px] text-slate-500 font-mono">0 / 1000</span>
-                            <button onclick="submitCommunityPost()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-2 rounded-xl text-xs transition">Publish Post</button>
-                        </div>
-                        <button onclick="submitCommunityPost()" class="w-full md:w-auto px-6 py-2 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition">Publish Post</button>
-                    </div>
+                <div class="bg-slate-950 p-4 rounded-2xl border border-slate-800 space-y-3">
+                    <textarea id="post-text-input" placeholder="Share an aviation experience, FBO tip, or catering recommendation (max 1000 characters)..." rows="3" class="field w-full"></textarea>
+                    <div class="flex justify-between items-center"><span id="char-counter" class="text-[10px] text-slate-500 font-mono">0 / 1000</span><button onclick="submitCommunityPost()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-2 rounded-xl text-xs">Publish Post</button></div>
                 </div>
-
                 <div id="community-posts-stream" class="space-y-4">
-                    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div class="flex items-center space-x-3">
-                                <div class="w-8 h-8 rounded-full bg-slate-800 flex items-center justify-center font-bold text-amber-400 text-xs">CP</div>
-                                <div>
-                                    <h5 class="text-xs font-bold text-slate-200">Captain Parker</h5>
-                                    <span class="text-[10px] text-slate-500">Transatlantic Crossing • 2 hours ago</span>
-                    <div id="community-posts-stream" class="space-y-4">
-                        <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3">
-                            <div class="flex items-center justify-between">
-                                <div class="flex items-center space-x-3">
-                                    <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400 text-xs">A</div>
-                                    <div>
-                                        <h5 class="text-xs font-bold text-slate-200">Chief Pilot Alex</h5>
-                                        <span class="text-[10px] text-slate-500">2 hours ago • Verified Crew</span>
-                                    </div>
-                                </div>
-                                <button class="text-xs text-amber-400 font-bold px-3 py-1 bg-amber-400/10 rounded-lg">Subscribed</button>
-                            </div>
-                            <p class="text-xs text-slate-300 leading-relaxed">Just completed an Atlantic crossing into Farnborough. The catering service coordinated through Bon Soirée was exceptional—piping hot gourmet meals ready on the ramp right as passengers deplaned.</p>
-                            <div class="flex items-center space-x-6 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
-                                <button onclick="toggleLike(this)" class="flex items-center space-x-1.5 hover:text-amber-400 transition">
-                                    <span>❤️</span> <span class="font-bold text-slate-200">14</span> Like
-                                </button>
-                                <button class="flex items-center space-x-1.5 hover:text-amber-400 transition">
-                                    <span>💬</span> <span class="font-bold text-slate-200">3</span> Comments
-                                </button>
-                            </div>
-                            <button class="text-xs text-amber-400 font-bold px-3 py-1 bg-amber-400/10 rounded-lg hover:bg-amber-400/20 transition">Subscribe Blog</button>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed">
-                            Flawless sunset approach into Geneva (LSGG) tonight at FL430. Glassy air over the Alps made for an incredible ride. The FBO handling at private aviation tarmac was swift and efficient as always. ✈️✨
-                        </p>
-                        <div class="flex items-center space-x-6 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
-                            <button onclick="toggleLike(this)" class="flex items-center space-x-1.5 hover:text-amber-400 transition">
-                                <span>❤️</span> <span class="font-bold text-slate-200">42</span> Likes
-                            </button>
-                            <button class="flex items-center space-x-1.5 hover:text-amber-400 transition">
-                                <span>💬</span> <span class="font-bold text-slate-200">7</span> Comments
-                            </button>
-                        </div>
-                    </div>
+                    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3"><div class="flex items-center justify-between"><div class="flex items-center gap-3"><div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400 text-xs">A</div><div><h5 class="text-xs font-bold">Chief Pilot Alex</h5><span class="text-[10px] text-slate-500">2 hours ago • Verified Crew</span></div></div><button class="text-xs text-amber-400 font-bold px-3 py-1 bg-amber-400/10 rounded-lg">Subscribed</button></div><p class="text-xs text-slate-300 leading-relaxed">Just completed an Atlantic crossing into Farnborough. The catering service coordinated through Bon Soirée was exceptional.</p><div class="flex items-center gap-6 pt-2 border-t border-slate-800/60 text-xs text-slate-400"><button onclick="toggleLike(this)">❤️ <span class="font-bold text-slate-200">14</span> Like</button><button>💬 <span class="font-bold text-slate-200">3</span> Comments</button></div></div>
                 </div>
             </div>
-
-            <!-- TAB CONTENT: TRAVEL BLOGS -->
-            <div id="comm-content-blogs" class="hidden space-y-4">
-                <h3 class="text-lg font-bold text-amber-400">Subscribed Travel Logs</h3>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="subscribed-blogs-grid">
-                    <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-3">
-                        <div class="flex items-center justify-between">
-                            <div>
-                                <h4 class="text-sm font-bold text-slate-100">Global Jetsetter Log</h4>
-                                <p class="text-[10px] text-slate-400">Curated by Capt. Alex Vance</p>
-                            </div>
-                            <span class="px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg text-[10px] font-bold">Subscribed</span>
-                        </div>
-                        <p class="text-xs text-slate-300">Deep dives into private airport handling nuances across Asia-Pacific and Middle Eastern hubs.</p>
-                        <button class="w-full py-2 bg-slate-950 border border-slate-800 hover:border-slate-700 text-xs text-slate-300 font-bold rounded-xl transition">View Full Log Entries</button>
-                <!-- Articles Tab -->
-                <div id="comm-content-blogs" class="hidden space-y-4">
-                    <div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-2">
-                        <span class="text-[10px] uppercase font-bold text-amber-400">Inflight Luxury Standards</span>
-                        <h4 class="text-sm font-bold text-slate-100">Optimizing Private Jet Galley Operations at FL430</h4>
-                        <p class="text-xs text-slate-400 leading-relaxed">A comprehensive overview of cabin pressure management, convection oven protocols, and high-altitude plating techniques for luxury charter flights.</p>
-                    </div>
-                </div>
-
-            </div>
-        </div>
-
-        <!-- ================= VIEW: SECURE VAULT ================= -->
-        <div id="view-vault" class="app-view hidden space-y-6 pb-12">
-            <!-- Vault Auth Gate -->
-            <div id="vault-auth-screen" class="max-w-md mx-auto bg-slate-900 border border-slate-800 p-8 rounded-3xl text-center space-y-6 shadow-2xl mt-12">
-                <div class="w-16 h-16 bg-amber-400/10 border border-amber-400/30 rounded-2xl mx-auto flex items-center justify-center text-2xl">🔒</div>
-                <div class="space-y-2">
-                    <h3 class="text-xl font-extrabold text-slate-100">Secure Personal Vault</h3>
-                    <p class="text-xs text-slate-400">Enter your secure PIN or password to access your encrypted favorites, custom catering notes, and saved destinations.</p>
-        <!-- VIEW 5: SECURE VAULT -->
-        <div id="view-vault" class="app-view hidden space-y-6">
-            <div id="vault-auth-screen" class="max-w-md mx-auto bg-slate-900/80 border border-slate-800 p-8 rounded-2xl text-center space-y-4">
-                <span class="text-3xl">🔒</span>
-                <h3 class="text-lg font-bold text-slate-100">Restricted Executive Vault</h3>
-                <p class="text-xs text-slate-400">Enter your secure 4-digit PIN to access confidential dispatch logs and flight notes.</p>
-                <input type="password" id="vault-pin-input" maxlength="4" placeholder="••••" class="w-32 mx-auto bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-center text-lg tracking-widest text-amber-400 focus:outline-none focus:border-amber-400">
-                <div>
-                    <button onclick="unlockVault()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs transition">Unlock Vault</button>
-                </div>
-                <input type="password" id="vault-pin-input" maxlength="6" placeholder="Enter Vault PIN..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-center text-lg tracking-widest text-amber-400 focus:outline-none focus:border-amber-400">
-                <button onclick="unlockVault()" class="w-full py-3 bg-amber-400 hover:bg-amber-300 text-slate-950 font-extrabold text-xs rounded-xl shadow-lg transition">Unlock Vault</button>
-            </div>
-
-            <!-- Unlocked Vault Panel -->
-            <div id="vault-content-panel" class="hidden space-y-6">
-            <div id="vault-content-panel" class="hidden bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-6">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-4">
-                    <div>
-                        <h2 class="text-2xl font-extrabold text-slate-100 flex items-center space-x-2">
-                            <span>🛡️ Private Member Vault</span>
-                            <span class="text-xs px-2.5 py-1 bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 rounded-lg font-mono">Encrypted Session</span>
-                        </h2>
-                        <p class="text-xs text-slate-400 mt-1">Your personal preferences, private notes, and saved private aviation assets.</p>
-                    <div class="flex items-center space-x-2">
-                        <span class="text-xl">🔓</span>
-                        <h3 class="text-lg font-bold text-amber-400">Secure Executive Dispatch Vault</h3>
-                    </div>
-                    <button onclick="lockVault()" class="px-4 py-2 bg-slate-900 hover:bg-slate-800 border border-slate-800 text-xs text-slate-300 font-bold rounded-xl transition">Lock Vault</button>
-                    <button onclick="lockVault()" class="bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl transition">Lock Vault</button>
-                </div>
-                <div class="text-xs text-slate-300 space-y-3">
-                    <p>Confidential flight schedules, secure passenger dietary manifests, and emergency FBO contacts are safely encrypted.</p>
-                </div>
-            </div>
-        </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
-                    <!-- Favorite Destinations -->
-                    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h4 class="text-sm font-bold text-amber-400">⭐️ Favorite Destinations</h4>
-                            <button onclick="addVaultItem('destination')" class="text-xs text-slate-400 hover:text-amber-400 font-bold">+ Add</button>
-                        </div>
-                        <div id="vault-destinations-list" class="space-y-2 text-xs text-slate-300">
-                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                                <span>Farnborough (EGLF) — UK</span>
-                                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>
-                            </div>
-                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                                <span>Geneva (LSGG) — Switzerland</span>
-                                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Preferred Catering -->
-                    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h4 class="text-sm font-bold text-amber-400">🍽️ Preferred Catering</h4>
-                            <button onclick="addVaultItem('catering')" class="text-xs text-slate-400 hover:text-amber-400 font-bold">+ Add</button>
-                        </div>
-                        <div id="vault-catering-list" class="space-y-2 text-xs text-slate-300">
-                            <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
-                                <span>VIP Platters • Fresh Berries & Espresso</span>
-                                <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>
-                            </div>
-                        </div>
-                    </div>
-    </main>
-
-                    <!-- Secure Notes -->
-                    <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-4">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                            <h4 class="text-sm font-bold text-amber-400">📝 Secure Notes</h4>
-                            <button onclick="saveSecureNote()" class="text-xs text-amber-400 hover:underline font-bold">Save Note</button>
-                        </div>
-                        <textarea id="vault-secure-note" rows="4" placeholder="Write private handler contacts, tail specs, or custom notes here..." class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-400 resize-none">Custom ramp clearance contacts saved for London Luton FBO.</textarea>
-                    </div>
-    <!-- AI ORDER ASSISTANT MODAL WIDGET -->
-    <div id="ai-assistant-modal" class="hidden fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
-        <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl flex flex-col h-[500px]">
-            <div class="p-4 border-b border-slate-800 flex items-center justify-between">
-                <div class="flex items-center space-x-2">
-                    <span class="text-amber-400">🤖</span>
-                    <h4 id="ai-assistant-title" class="text-sm font-bold text-slate-100">SkyAgent AI Concierge</h4>
-                </div>
-                <button onclick="closeAiAssistant()" class="text-slate-400 hover:text-slate-200 font-bold text-sm px-2 py-1">✕</button>
-            </div>
-            <div id="ai-chat-log" class="flex-grow p-4 space-y-3 overflow-y-auto text-xs">
-                <div class="text-left">
-                    <span class="inline-block bg-slate-800 text-slate-200 text-xs px-3 py-2 rounded-xl max-w-[80%] border border-slate-700">Hello! I am your SkyAgent AI assistant. How can I help you compile dietary requests or place your catering order today?</span>
-                </div>
-            </div>
-            <div class="p-4 border-t border-slate-800 flex space-x-2">
-                <input type="text" id="ai-chat-input" placeholder="Type your order details or question..." class="flex-grow bg-slate-950 border border-slate-800 rounded-xl px-4 py-2.5 text-xs text-slate-200 focus:outline-none focus:border-amber-400" onkeypress="if(event.key === 'Enter') sendAiMessage()">
-                <button onclick="sendAiMessage()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs transition">Send</button>
-            </div>
+            <div id="comm-content-blogs" class="hidden space-y-4"><div class="bg-slate-950 p-5 rounded-2xl border border-slate-800 space-y-2"><span class="text-[10px] uppercase font-bold text-amber-400">Inflight Luxury Standards</span><h4 class="text-sm font-bold">Optimizing Private Jet Galley Operations at FL430</h4><p class="text-xs text-slate-400 leading-relaxed">A comprehensive overview of cabin pressure management, convection oven protocols, and high-altitude plating techniques for luxury charter flights.</p></div></div>
         </div>
     </div>
 
-    </main>
-    <!-- FOOTER -->
-    <footer class="bg-slate-900 border-t border-slate-800 py-6 mt-12 text-center text-xs text-slate-500">
-        <p>© 2026 SkyLevel Executive Aviation. All rights reserved.</p>
-    </footer>
+    <!-- VAULT -->
+    <div id="view-vault" class="app-view hidden space-y-6">
+        <div id="vault-auth-screen" class="max-w-md mx-auto bg-slate-900/80 border border-slate-800 p-8 rounded-2xl text-center space-y-4">
+            <span class="text-3xl">🔒</span><h3 class="text-lg font-bold">Restricted Executive Vault</h3><p class="text-xs text-slate-400">Enter your secure 4-digit PIN to access confidential dispatch logs and flight notes.</p>
+            <input type="password" id="vault-pin-input" maxlength="4" placeholder="••••" class="w-32 mx-auto bg-slate-950 border border-slate-800 rounded-xl px-4 py-2 text-center text-lg tracking-widest text-amber-400 focus:outline-none focus:border-amber-400">
+            <button onclick="unlockVault()" class="bg-amber-400 hover:bg-amber-300 text-slate-950 font-bold px-6 py-2.5 rounded-xl text-xs">Unlock Vault</button>
+        </div>
+        <div id="vault-content-panel" class="hidden bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-6"><div class="flex items-center justify-between border-b border-slate-800 pb-4"><h3 class="text-lg font-bold text-amber-400">Secure Executive Dispatch Vault</h3><button onclick="lockVault()" class="bg-slate-800 text-slate-300 text-xs font-bold px-4 py-2 rounded-xl">Lock Vault</button></div><p class="text-xs text-slate-300">Confidential flight schedules, secure passenger dietary manifests, and emergency FBO contacts are safely encrypted.</p></div>
+    </div>
+</main>
 
-    <!-- App Logic Script -->
-    <script src="js/app.js"></script>
-    <!-- Link your updated app.js script here -->
-    <script src="app.js"></script>
+<div id="ai-assistant-modal" class="hidden fixed inset-0 z-[60] bg-slate-950/80 backdrop-blur-sm flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 w-full max-w-lg rounded-2xl shadow-2xl flex flex-col h-[500px]">
+        <div class="p-4 border-b border-slate-800 flex items-center justify-between"><h4 id="ai-assistant-title" class="text-sm font-bold">SkyAgent AI Concierge</h4><button onclick="closeAiAssistant()" class="text-slate-400 text-sm">✕</button></div>
+        <div id="ai-chat-log" class="flex-grow p-4 space-y-3 overflow-y-auto text-xs"><div><span class="inline-block bg-slate-800 text-slate-200 px-3 py-2 rounded-xl border border-slate-700">Hello! I am your SkyAgent AI assistant. How can I help you compile dietary requests or place your catering order today?</span></div></div>
+        <div class="p-4 border-t border-slate-800 flex gap-2"><input type="text" id="ai-chat-input" placeholder="Type your order details or question..." class="flex-grow field" onkeypress="if(event.key === 'Enter') sendAiMessage()"><button onclick="sendAiMessage()" class="bg-amber-400 text-slate-950 font-bold px-5 py-2.5 rounded-xl text-xs">Send</button></div>
+    </div>
+</div>
+
+<footer class="bg-slate-900 border-t border-slate-800 py-6 text-center text-xs text-slate-500"><p>© 2026 SkyLevel Executive Aviation. All rights reserved.</p></footer>
+
+<style>
+    .field { background:#0f172a; border:1px solid #1e293b; border-radius:.75rem; padding:.625rem 1rem; font-size:.75rem; color:#e2e8f0; outline:none; }
+    .field:focus { border-color:#fbbf24; }
+</style>
+<script src="app.js"></script>
 </body>
 </html>
