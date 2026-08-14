@@ -768,6 +768,35 @@ let currentTrackedFlight = {
 
 
 
+// Dynamic flight profile generator based on typed callsign / tail number
+function generateFlightProfile(callsign) {
+    const routes = [
+        { route: "EGLF ✈️ LSGG", desc: "Farnborough to Geneva", weather: "CAVOK 18°C", status: "On Schedule (-2m)" },
+        { route: "KTEB ✈️ KPBI", desc: "Teterboro to Palm Beach", weather: "SCT045 26°C", status: "On Time" },
+        { route: "OMDB ✈️ OMDW", desc: "Dubai to Al Maktoum", weather: "CAVOK 34°C", status: "Minor Flow Control (+5m)" },
+        { route: "LFPG ✈️ LFMN", desc: "Paris Le Bourget to Nice", weather: "FEW030 22°C", status: "On Schedule" },
+        { route: "CYYZ ✈️ KJFK", desc: "Toronto Pearson to New York JFK", weather: "BKN020 14°C", status: "Arrival Delay (+12m)" }
+    ];
+
+    let charSum = 0;
+    for (let i = 0; i < callsign.length; i++) {
+        charSum += callsign.charCodeAt(i);
+    }
+    const profile = routes[charSum % routes.length];
+
+    return {
+        callsign: callsign,
+        route: profile.route,
+        details: `${profile.desc} • FL${350 + (charSum % 10) * 2} • Mach 0.${80 + (charSum % 5)}`,
+        weather: profile.weather,
+        status: profile.status,
+        altitude: 35000 + (charSum % 8) * 1000,
+        groundSpeed: 450 + (charSum % 50)
+    };
+}
+
+
+
 function initFlightTracker() {
 
     const trackButton = document.getElementById('track-btn');
@@ -783,8 +812,9 @@ function initFlightTracker() {
             const query = searchInput.value.trim();
 
             if (query) {
+                const upperCallsign = query.toUpperCase();
 
-                currentTrackedFlight.callsign = query.toUpperCase();
+                currentTrackedFlight = generateFlightProfile(upperCallsign);
 
                 updateFlightUI();
 
@@ -794,7 +824,7 @@ function initFlightTracker() {
 
                 if (radarFrame) {
 
-                    radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=7&icao=&sel=${encodeURIComponent(query)}`;
+                    radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=7&icao=&sel=${encodeURIComponent(upperCallsign)}`;
 
                 }
 
@@ -1140,6 +1170,4 @@ document.addEventListener('DOMContentLoaded', () => {
 
     initAutomatedWeather();
 
-}); 
-
-
+});
