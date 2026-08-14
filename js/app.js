@@ -48,7 +48,6 @@ function switchView(viewId, updateHistory = true) {
 
             btn.classList.add('bg-slate-800/60', 'border', 'border-slate-700');
 
-            btn.classList.add('text-amber-400', 'bg-slate-800/60', 'border', 'border-slate-700');
         } else {
 
             btn.classList.remove('text-amber-400', 'bg-slate-800/60', 'border', 'border-slate-700');
@@ -91,7 +90,6 @@ window.addEventListener('popstate', (event) => {
 
 // --- GLOBAL AVIATION DATABASE & DIRECTORY ---
 
-// --- GLOBAL AVIATION DIRECTORY DATABASE ---
 const aviationDatabase = [
 
     {
@@ -212,7 +210,6 @@ const aviationDatabase = [
 
                     { name: "Dubai", hubs: ["Dubai International (DXB)", "Al Maktoum International (DWC)", "Dubai Executive Flight Center"] }
 
-                    { name: "Dubai", hubs: ["Dubai International (DXB)", "Al Maktoum International (DWC)"] }
                 ]
 
             },
@@ -267,7 +264,6 @@ const aviationDatabase = [
 
                     { name: "Melbourne", hubs: ["Melbourne Airport (MEL)", "Essendon Fields (MEB)"] }
 
-                    { name: "Sydney", hubs: ["Sydney Kingsford Smith (SYD)"] }
                 ]
 
             }
@@ -344,7 +340,7 @@ function renderAviationDirectory() {
 
     let html = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
 
-
+    
 
     aviationDatabase.forEach((cont, cIndex) => {
 
@@ -475,402 +471,56 @@ function selectCountry(index) {
 }
 
 
-// --- GLOBAL PRIVATE JET CATERING DIRECTORY DATABASE ---
-const globalCateringDirectory = [
-    // --- UNITED KINGDOM ---
-    {
-        name: "Bon Soirée Private Jet Catering",
-        region: "United Kingdom",
-        countryCode: "UK",
-        flag: "🇬🇧",
-        phone: "+44 1442 874076",
-        email: "orders@bonsoiree.co.uk",
-        website: "https://bonsoiree.co.uk",
-        menuLink: "https://bonsoiree.co.uk/services/",
-        favorite: true,
-        votes: 342,
-        notes: "Serves Luton, Northolt, Farnborough, Stansted, and Oxford. Exceptional bespoke luxury dining."
-    },
-    {
-        name: "Royalblue Executive Services",
-        region: "United Kingdom",
-        countryCode: "UK",
-        flag: "🇬🇧",
-        phone: "+44 1784 242700",
-        email: "ops@royalbluecatering.co.uk",
-        website: "https://www.royalbluecatering.co.uk",
-        menuLink: "https://www.royalbluecatering.co.uk",
-        favorite: false,
-        votes: 215,
-        notes: "Hubs at Heathrow & Stansted. Halal and non-halal certified VIP catering menus."
-    },
-    {
-        name: "Piazza Italiana Aero Catering",
-        region: "United Kingdom",
-        countryCode: "UK",
-        flag: "🇬🇧",
-        phone: "+44 7386 314582",
-        email: "aerocatering@piazzaitaliana.co.uk",
-        website: "https://piazzaitaliana.co.uk/private-jet-catering-london/",
-        menuLink: "https://piazzaitaliana.co.uk/private-jet-catering-london/",
-        favorite: true,
-        votes: 489,
-        notes: "City of London based. Italian fine dining, Slavic, Asian cuisine, and direct WhatsApp ordering."
-    },
 
-    // --- EUROPE ---
-    {
-        name: "Air Gourmet (France)",
-        region: "Europe",
-        countryCode: "France",
-        flag: "🇫🇷",
-        phone: "+33 1 48 68 35 45",
-        email: "orders@airgourmet.fr",
-        website: "https://airgourmet.fr",
-        menuLink: "https://airgourmet.fr",
-        favorite: true,
-        votes: 310,
-        notes: "Primary private jet caterer serving Le Bourget (LBG) and Charles de Gaulle (CDG)."
-    },
-    {
-        name: "Jet Aviation Catering (Switzerland)",
-        region: "Europe",
-        countryCode: "Switzerland",
-        flag: "🇨🇭",
-        phone: "+41 58 158 1111",
-        email: "zrh.catering@jetaviation.com",
-        website: "https://www.jetaviation.com",
-        menuLink: "https://www.jetaviation.com",
-        favorite: false,
-        votes: 198,
-        notes: "Top-tier FBO and inflight catering provisioning across Zurich and Geneva."
-    },
-    {
-        name: "E-Aviation First Class Catering (Germany)",
-        region: "Europe",
-        countryCode: "Germany",
-        flag: "🇩🇪",
-        phone: "+49 911 376900",
-        email: "sales@e-aviation.de",
-        website: "https://www.e-aviation.de",
-        menuLink: "https://www.e-aviation.de/en/first-class-catering-2/",
-        favorite: false,
-        votes: 142,
-        notes: "Hand-picked European luxury culinary partners catering executive charter flights."
-    },
 
-    // --- UNITED STATES ---
-    {
-        name: "Signature Jet Catering (USA - Florida)",
-        region: "United States",
-        countryCode: "United States",
-        flag: "🇺🇸",
-        phone: "+1 754 600 1968",
-        email: "order@signaturejetcatering.com",
-        website: "https://www.signaturejetcatering.com",
-        menuLink: "https://www.signaturejetcatering.com",
-        favorite: true,
-        votes: 620,
-        notes: "Turnkey worldwide executive inflight catering with seamless FBO and ramp handovers."
-    },
-    {
-        name: "VIP Jet Catering (USA - Ohio)",
-        region: "United States",
-        countryCode: "United States",
-        flag: "🇺🇸",
-        phone: "+1 435 266-9581",
-        email: "contact@vip-jet-catering.com",
-        website: "https://www.vip-jet-catering.com",
-        menuLink: "https://www.vip-jet-catering.com",
-        favorite: false,
-        votes: 275,
-        notes: "Custom menus and 24/7 global coordination supporting US municipal and international airports."
-    },
 
 // --- COMMUNITY HUB CONTROLLERS ---
-    // --- AFRICA ---
-    {
-        name: "ExecuJet Africa Inflight Catering (South Africa)",
-        region: "Africa",
-        countryCode: "South Africa",
-        flag: "🇿🇦",
-        phone: "+27 11 516 2300",
-        email: "enquiries@execujet.co.za",
-        website: "https://www.execujet.com",
-        menuLink: "https://www.execujet.com",
-        favorite: false,
-        votes: 112,
-        notes: "Premier executive aviation catering across Lanseria (HLA) and O.R. Tambo (JNB)."
-    },
 
 function switchCommunityTab(tabName) {
-    // --- SOUTH AMERICA ---
-    {
-        name: "Air Gourmet Brazil (São Paulo)",
-        region: "South America",
-        countryCode: "Brazil",
-        flag: "🇧🇷",
-        phone: "+55 11 5093 4000",
-        email: "atendimento@airgourmet.com.br",
-        website: "https://airgourmet.com.br",
-        menuLink: "https://airgourmet.com.br",
-        favorite: false,
-        votes: 134,
-        notes: "Delivering gourmet executive meals directly to Congonhas (CGH) and Guarulhos (GRU)."
-    },
 
     const feedTab = document.getElementById('comm-tab-feed');
-    // --- MIDDLE EAST ---
-    {
-        name: "Emirates Flight Catering - Executive (UAE)",
-        region: "Middle East",
-        countryCode: "United Arab Emirates",
-        flag: "🇦🇪",
-        phone: "+971 4 208 6000",
-        email: "executivedining@emiratesflightcatering.com",
-        website: "https://www.emiratesflightcatering.com",
-        menuLink: "https://www.emiratesflightcatering.com",
-        favorite: true,
-        votes: 512,
-        notes: "World-class VIP aviation kitchen services across Dubai International (DXB) and DWC."
-    },
 
     const blogsTab = document.getElementById('comm-tab-blogs');
-    // --- ASIA ---
-    {
-        name: "LSG Sky Chefs Singapore",
-        region: "Asia",
-        countryCode: "Singapore",
-        flag: "🇸🇬",
-        phone: "+65 6542 3311",
-        email: "singapore.ops@lsgskychefs.com",
-        website: "https://www.lsgskychefs.com",
-        menuLink: "https://www.lsgskychefs.com",
-        favorite: false,
-        votes: 245,
-        notes: "High-precision private jet and commercial catering at Changi (SIN) and Seletar (XSP)."
-    }
-];
 
     const feedContent = document.getElementById('comm-content-feed');
-let userSubmittedCateringQueue = [];
 
     const blogsContent = document.getElementById('comm-content-blogs');
-function renderCateringDirectory(filterType = 'all', searchQuery = '') {
-    const container = document.getElementById('catering-directory-grid');
-    if (!container) return;
 
-    let combinedList = [...globalCateringDirectory, ...userSubmittedCateringQueue];
 
-    // Filter logic
-    const filtered = combinedList.filter(item => {
-        const matchesSearch = item.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              item.region.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              item.countryCode.toLowerCase().includes(searchQuery.toLowerCase()) ||
-                              item.notes.toLowerCase().includes(searchQuery.toLowerCase());
-        
-        if (!matchesSearch) return false;
-
-        if (filterType === 'favorites') return item.favorite;
-        if (filterType === 'uk') return item.countryCode === 'UK';
-        if (filterType === 'europe') return item.region === 'Europe';
-        if (filterType === 'us') return item.countryCode === 'United States';
-        if (filterType === 'me') return item.region === 'Middle East';
-        if (filterType === 'asia') return item.region === 'Asia';
-        if (filterType === 'africa') return item.region === 'Africa';
-        if (filterType === 'sa') return item.region === 'South America';
-        return true;
-    });
-
-    if (filtered.length === 0) {
-        container.innerHTML = `<div class="col-span-full text-center py-12 text-slate-500 text-xs">No catering providers found matching your search criteria.</div>`;
-        return;
-    }
 
     if (tabName === 'feed') {
-    let html = '';
-    filtered.forEach((vendor, index) => {
-        html += `
-            <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-4 flex flex-col justify-between hover:border-slate-700 transition">
-                <div class="space-y-2">
-                    <div class="flex items-start justify-between">
-                        <div class="flex items-center space-x-2">
-                            <span class="text-2xl">${vendor.flag}</span>
-                            <div>
-                                <span class="text-[10px] uppercase font-bold text-amber-400 tracking-wider">${vendor.region} • ${vendor.countryCode}</span>
-                                <h4 class="text-base font-bold text-slate-100">${vendor.name}</h4>
-                            </div>
-                        </div>
-                        <button onclick="toggleCateringFavorite('${vendor.name}')" class="text-xl p-1.5 rounded-lg hover:bg-slate-800 transition">
-                            ${vendor.favorite ? '❤️' : '♡'}
-                        </button>
-                    </div>
-                    <p class="text-xs text-slate-400 leading-relaxed">${vendor.notes}</p>
-                </div>
 
         feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
-                <div class="space-y-2 pt-3 border-t border-slate-800/80 text-xs">
-                    <div class="flex items-center justify-between text-slate-300">
-                        <span class="text-slate-500 font-semibold">Phone:</span>
-                        <a href="tel:${vendor.phone}" class="text-amber-400 hover:underline font-mono">${vendor.phone}</a>
-                    </div>
-                    <div class="flex items-center justify-between text-slate-300">
-                        <span class="text-slate-500 font-semibold">Email:</span>
-                        <a href="mailto:${vendor.email}" class="text-amber-400 hover:underline truncate max-w-[180px]">${vendor.email}</a>
-                    </div>
-                </div>
 
         blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
-                <div class="grid grid-cols-2 gap-2 pt-2">
-                    <a href="${vendor.menuLink}" target="_blank" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 text-center font-bold text-xs transition flex items-center justify-center space-x-1">
-                        <span>📋 Menus / Order</span>
-                    </a>
-                    <button onclick="openAiOrderAssistant('${vendor.name}')" class="px-3 py-2 rounded-xl bg-amber-400 hover:bg-amber-300 text-slate-950 text-center font-bold text-xs transition flex items-center justify-center space-x-1">
-                        <span>🤖 AI Assistant</span>
-                    </button>
-                </div>
-            </div>
-        `;
-    });
 
         feedContent.classList.remove('hidden');
-    container.innerHTML = html;
-}
 
         blogsContent.classList.add('hidden');
-function filterCatering(type, btnElement) {
-    document.querySelectorAll('.catering-filter-btn').forEach(btn => {
-        btn.className = "catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-slate-900 border border-slate-800 text-slate-400 hover:text-slate-200";
-    });
-    if (btnElement) {
-        btnElement.className = "catering-filter-btn px-4 py-2 rounded-xl text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
-    }
-    const searchVal = document.getElementById('catering-search-bar').value;
-    renderCateringDirectory(type, searchVal);
-}
 
     } else {
-document.addEventListener('DOMContentLoaded', () => {
-    const searchBar = document.getElementById('catering-search-bar');
-    if (searchBar) {
-        searchBar.addEventListener('input', (e) => {
-            renderCateringDirectory('all', e.target.value);
-        });
-    }
-    renderCateringDirectory();
-});
 
         blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
-function toggleCateringFavorite(vendorName) {
-    const target = globalCateringDirectory.find(v => v.name === vendorName) || userSubmittedCateringQueue.find(v => v.name === vendorName);
-    if (target) {
-        target.favorite = !target.favorite;
-        renderCateringDirectory();
-    }
-}
 
         feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
-function submitUserCateringVendor(event) {
-    event.preventDefault();
-    const name = document.getElementById('new-vendor-name').value.trim();
-    const region = document.getElementById('new-vendor-region').value;
-    const country = document.getElementById('new-vendor-country').value.trim();
-    const flag = document.getElementById('new-vendor-flag').value.trim() || '✈️';
-    const phone = document.getElementById('new-vendor-phone').value.trim();
-    const email = document.getElementById('new-vendor-email').value.trim();
-    const website = document.getElementById('new-vendor-website').value.trim();
-    const notes = document.getElementById('new-vendor-notes').value.trim();
-
-    if (!name || !phone || !email) {
-        alert("Please complete all required fields (Name, Phone, Email).");
-        return;
-    }
 
         blogsContent.classList.remove('hidden');
-    const newVendor = {
-        name,
-        region,
-        countryCode: country || region,
-        flag,
-        phone,
-        email,
-        website: website || '#',
-        menuLink: website || '#',
-        favorite: false,
-        votes: 1,
-        notes: notes || 'Community-submitted executive jet catering vendor pending full audit.'
-    };
-
-    userSubmittedCateringQueue.push(newVendor);
-    alert("Vendor successfully submitted! Awaiting host review & community notes approval.");
-    document.getElementById('catering-submission-form').reset();
-    renderCateringDirectory();
-}
 
         feedContent.classList.add('hidden');
 
-// --- AI ORDER HELPER ASSISTANT MODAL ---
-function openAiOrderAssistant(vendorName) {
-    const modal = document.getElementById('ai-assistant-modal');
-    const title = document.getElementById('ai-assistant-title');
-    if (modal && title) {
-        title.textContent = `SkyAgent AI Concierge — Assisting with ${vendorName}`;
-        modal.classList.remove('hidden');
     }
+
 }
 
-function closeAiAssistant() {
-    const modal = document.getElementById('ai-assistant-modal');
-    if (modal) modal.classList.add('hidden');
-}
 
-function sendAiMessage() {
-    const input = document.getElementById('ai-chat-input');
-    const log = document.getElementById('ai-chat-log');
-    if (!input || !log) return;
-    const text = input.value.trim();
-    if (!text) return;
-
-    log.innerHTML += `<div class="text-right"><span class="inline-block bg-amber-400 text-slate-950 text-xs px-3 py-2 rounded-xl max-w-[80%]">${escapeHtml(text)}</span></div>`;
-    input.value = '';
 
 document.addEventListener('DOMContentLoaded', () => {
-    setTimeout(() => {
-        let reply = "I can assist you with compiling VIP dietary requirements, generating FBO delivery time windows, or drafting direct RFQs to this caterer. Would you like me to formulate a formal order template?";
-        if (text.toLowerCase().includes('menu') || text.toLowerCase().includes('order')) {
-            reply = "Certainly! I have formatted your order requirements for VIP dietary profiles (Halal/Gluten-Free options included) and can dispatch the confirmation directly to dispatch ops.";
-        }
-        log.innerHTML += `<div class="text-left"><span class="inline-block bg-slate-800 text-slate-200 text-xs px-3 py-2 rounded-xl max-w-[80%] border border-slate-700">${reply}</span></div>`;
-        log.scrollTop = log.scrollHeight;
-    }, 800);
-}
 
     const postInput = document.getElementById('post-text-input');
 
     const charCounter = document.getElementById('char-counter');
-// --- COMMUNITY HUB CONTROLLERS ---
-function switchCommunityTab(tabName) {
-    const feedTab = document.getElementById('comm-tab-feed');
-    const blogsTab = document.getElementById('comm-tab-blogs');
-    const feedContent = document.getElementById('comm-content-feed');
-    const blogsContent = document.getElementById('comm-content-blogs');
 
-    if (tabName === 'feed') {
-        feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
-        blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
-        feedContent.classList.remove('hidden');
-        blogsContent.classList.add('hidden');
-    } else {
-        blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
-        feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
-        blogsContent.classList.remove('hidden');
-        feedContent.classList.add('hidden');
-    }
-}
 
-document.addEventListener('DOMContentLoaded', () => {
-    const postInput = document.getElementById('post-text-input');
-    const charCounter = document.getElementById('char-counter');
 
     if (postInput && charCounter) {
 
@@ -934,7 +584,6 @@ function submitCommunityPost() {
 
         <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3 animate-fade-in">
 
-        <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3">
             <div class="flex items-center justify-between">
 
                 <div class="flex items-center space-x-3">
@@ -1097,12 +746,10 @@ function saveSecureNote() {
 
 // --- LIVE FLIGHT TRACKER ENGINE (LINKED TELEMETRY & FAST-ZOOM VIEWPORT) ---
 
-// --- LIVE FLIGHT TRACKER ENGINE ---
 let flightTimer = null;
 
 let currentZoomLevel = 5; // Default zoomed out overview state
 
-let currentZoomLevel = 3; 
 let currentTrackedFlight = {
 
     callsign: "N750EX",
@@ -1111,7 +758,6 @@ let currentTrackedFlight = {
 
     details: "Farnborough to Geneva • FL430 • Mach 0.82",
 
-    details: "Farnborough to Geneva • FL430 • Mach 0.82 | Alt: 43000ft | GS: 485kts",
     weather: "CAVOK 18°C",
 
     status: "On Schedule (-2m)",
@@ -1136,7 +782,6 @@ const randomFlightPool = [
 
     { callsign: "HB-JIV", route: "LSZH ✈️ KJFK", details: "Zurich to New York JFK • FL390 • Mach 0.84", weather: "BKN015 12°C", status: "On Schedule", alt: 39000, gs: 510 }
 
-    { callsign: "N888Z", route: "KTEB ✈️ KPBI", details: "Teterboro to Palm Beach • FL410 • Mach 0.80", weather: "FEW025 28°C", status: "Airborne", alt: 41000, gs: 468 }
 ];
 
 
@@ -1148,7 +793,7 @@ function initFlightTracker() {
 
     const chosen = randomFlightPool[randomIndex];
 
-
+    
 
     currentTrackedFlight = {
 
@@ -1208,11 +853,10 @@ function initFlightTracker() {
 
                 updateFlightUI();
 
-
+                
 
                 // Lock radar frame onto the searched flight while maintaining zoom preference
 
-                updateFlightUI();
                 reloadRadarFrame();
 
             }
@@ -1281,9 +925,6 @@ function startFlightPolling() {
 
             console.log("Device offline: Live flight updates paused.");
 
-            currentTrackedFlight.altitude += Math.floor(Math.random() * 200) - 100;
-            currentTrackedFlight.groundSpeed += Math.floor(Math.random() * 10) - 5;
-            updateFlightUI();
         }
 
     }, 30000);
@@ -1326,7 +967,6 @@ function handleNetworkChange() {
 
         statusIndicator.className = "w-3 h-3 rounded-full bg-amber-500";
 
-        statusIndicator.className = "w-3 h-3 rounded-full bg-amber-500 animate-pulse";
         statusText.textContent = "Offline Mode";
 
     }
@@ -1363,7 +1003,6 @@ function updateFlightUI() {
 
 // --- AUTOMATED GLOBAL CLOCK & TIME ZONES ---
 
-// --- GLOBAL CLOCKS & TIME ZONES (UNIFIED MOBILE & DESKTOP) ---
 const targetTimeZones = [
 
     { label: "UTC", zone: "UTC" },
@@ -1416,10 +1055,6 @@ function updateClocks() {
 
     }
 
-    // Targets all matching UTC clock identifiers across mobile, tablet, and desktop headers
-    document.querySelectorAll('.header-utc-clock-target').forEach(el => {
-        el.textContent = now.toLocaleTimeString('en-US', { timeZone: 'UTC', hour12: false }) + " UTC";
-    });
     updateRotatingTimeZone(now);
 
 }
@@ -1434,15 +1069,12 @@ function updateRotatingTimeZone(now = new Date()) {
 
     if (rotatingEl) {
 
-    document.querySelectorAll('.rotating-timezone-widget-target').forEach(el => {
         const timeString = now.toLocaleTimeString('en-US', { timeZone: tzData.zone, hour: '2-digit', minute: '2-digit', hour12: false });
 
         rotatingEl.innerHTML = `<span class="text-slate-400 text-xs">${tzData.label}:</span> <span class="text-amber-400 font-bold">${timeString}</span>`;
 
     }
 
-        el.innerHTML = `<span class="text-slate-400 text-xs">${tzData.label}:</span> <span class="text-amber-400 font-bold">${timeString}</span>`;
-    });
 }
 
 
@@ -1451,7 +1083,6 @@ function updateRotatingTimeZone(now = new Date()) {
 
 // --- AUTOMATED 10-DAY WEATHER FORECAST WIDGET ---
 
-// --- AUTOMATED WEATHER FORECAST WIDGET ---
 const weatherLocations = [
 
     { name: "London / Farnborough (EGLF)", lat: 51.275, lon: -0.776 },
@@ -1462,7 +1093,6 @@ const weatherLocations = [
 
     { name: "Dubai (DXB)", lat: 25.2048, lon: 55.2708 }
 
-    { name: "Geneva (LSGG)", lat: 46.2372, lon: 6.109 }
 ];
 
 
@@ -1575,7 +1205,6 @@ async function fetchWeatherForCurrentLocation() {
 
         console.error("Weather fetch failed (Offline mode active):", error);
 
-        console.error("Weather fetch failed:", error);
         container.innerHTML = `<div class="text-xs text-amber-400 p-4">Weather data cached / Offline mode active.</div>`;
 
     }
@@ -1592,7 +1221,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     renderAviationDirectory();
 
-    renderCateringDirectory();
     initFlightTracker();
 
     initGlobalClocks();
