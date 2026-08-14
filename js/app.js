@@ -1,756 +1,1230 @@
-<!DOCTYPE html>
-<html lang="en" class="dark">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Skylevel — Private Aviation & Flight Tracking Hub</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <script>
-        tailwind.config = {
-            darkMode: 'class',
-            theme: {
-                extend: {
-                    colors: {
-                        amber: { 400: '#fbbf24', 500: '#f59e0b' }
-                    }
-                }
-            }
-        }
-    </script>
-</head>
-<body class="bg-slate-950 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
-
-    <!-- --- TOP NAVIGATION HEADER --- -->
-    <header class="border-b border-slate-800 bg-slate-950/80 backdrop-blur sticky top-0 z-50">
-        <div class="max-w-7xl mx-auto px-4 h-16 flex items-center justify-between">
-            <div class="flex items-center space-x-3">
-                <span class="text-2xl">✈️</span>
-                <span class="font-extrabold text-lg text-amber-400 tracking-wider">SKYLEVEL</span>
-            </div>
-            
-            <nav class="hidden md:flex items-center space-x-2">
-                <button onclick="switchView('home')" data-target="home" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-amber-400 bg-slate-800/60 border border-slate-700">Home Dashboard</button>
-                <button onclick="switchView('tracker')" data-target="tracker" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Live Radar</button>
-                <button onclick="switchView('directory')" data-target="directory" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Global Hubs</button>
-                <button onclick="switchView('community')" data-target="community" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Community Hub</button>
-                <button onclick="switchView('vault')" data-target="vault" class="nav-link px-4 py-2 rounded-xl text-xs font-bold transition text-slate-400 hover:text-slate-200">Secure Vault</button>
-            </nav>
-
-            <div class="flex items-center space-x-4">
-                <div id="header-utc-clock" class="text-xs font-mono text-slate-400 hidden sm:block">--:--:-- UTC</div>
-                <div id="rotating-timezone-widget" class="text-xs font-mono bg-slate-900 border border-slate-800 px-3 py-1.5 rounded-lg">Loading...</div>
-            </div>
-        </div>
-    </header>
-
-    <!-- --- MAIN APP VIEWPORTS CONTAINER --- -->
-    <main class="flex-grow max-w-7xl mx-auto px-4 py-6 w-full">
-
-        <!-- VIEW: HOME DASHBOARD -->
-        <div id="view-home" class="app-view space-y-6">
-            <div class="bg-gradient-to-r from-slate-900 to-slate-950 border border-slate-800 p-8 rounded-2xl space-y-3">
-                <h1 class="text-2xl md:text-3xl font-extrabold text-amber-400">Welcome to Skylevel Operations</h1>
-                <p class="text-sm text-slate-300 max-w-2xl">Monitor your assigned flights, check global private aviation hubs, review live automated weather reports, and manage custom flight logs securely.</p>
-            </div>
-
-            <!-- PERSONAL FLIGHT FOLLOWER & CUSTOMIZATION WIDGET -->
-            <div class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-4 shadow-xl">
-                <div class="flex items-center justify-between border-b border-slate-800 pb-3">
-                    <div class="flex items-center space-x-3">
-                        <span class="text-xl">✈️</span>
-                        <div>
-                            <h3 class="text-base font-bold text-slate-100">My Flight Follower</h3>
-                            <p class="text-xs text-slate-400">Personalized active route & custom updates</p>
-                        </div>
-                    </div>
-                    <button onclick="openFlightCustomizationModal()" class="px-3 py-1.5 bg-amber-400/10 border border-amber-400/30 text-amber-400 text-xs font-bold rounded-xl hover:bg-amber-400/20 transition">
-                        ⚙️ Customize Flight
-                    </button>
-                </div>
-
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                    <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 uppercase tracking-wider">Active Callsign</span>
-                        <div id="home-follower-callsign" class="text-lg font-extrabold text-amber-400 font-mono mt-1">--</div>
-                    </div>
-                    <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 uppercase tracking-wider">Assigned Route</span>
-                        <div id="home-follower-route" class="text-sm font-bold text-slate-200 mt-1">--</div>
-                    </div>
-                    <div class="bg-slate-950/80 p-4 rounded-xl border border-slate-800/80">
-                        <span class="text-[10px] text-slate-400 uppercase tracking-wider">Custom Status Update</span>
-                        <div id="home-follower-status" class="text-xs font-medium text-emerald-400 mt-1">--</div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- AUTOMATED WEATHER PREVIEW WIDGET -->
-            <div id="automated-weather-widget" class="bg-slate-900/80 border border-slate-800 p-6 rounded-2xl space-y-3">
-                <div class="text-xs text-slate-400 animate-pulse">Loading live weather telemetry...</div>
-            </div>
-        </div>
-
-        <!-- VIEW: LIVE RADAR TRACKER -->
-        <div id="view-tracker" class="app-view hidden space-y-6">
-            <div class="bg-slate-900/80 border border-slate-800 p-4 rounded-2xl flex flex-wrap items-center justify-between gap-4">
-                <div class="flex items-center space-x-3">
-                    <div id="network-status-indicator" class="w-3 h-3 rounded-full bg-emerald-500 animate-pulse"></div>
-                    <div>
-                        <h3 class="text-sm font-bold text-slate-100">ADS-B Global Live Radar</h3>
-                        <p id="network-status-text" class="text-xs text-slate-400">Live Updates Active</p>
-                    </div>
-                </div>
-
-                <!-- Custom Flight Callsign Search & Zoom Controls -->
-                <div class="flex items-center space-x-2 w-full md:w-auto">
-                    <input type="text" id="flight-search-input" placeholder="Search Callsign (e.g. N750EX)" class="bg-slate-950 border border-slate-800 px-3 py-2 rounded-xl text-xs text-slate-200 focus:outline-none focus:border-amber-400 w-full md:w-48 font-mono uppercase">
-                    <button id="track-btn" class="px-4 py-2 bg-amber-400 text-slate-950 text-xs font-bold rounded-xl hover:bg-amber-300 transition shrink-0">Track</button>
-                    <div class="flex space-x-1 border-l border-slate-800 pl-2">
-                        <button onclick="zoomTracker(-1)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl transition text-amber-400" title="Zoom Out">-</button>
-                        <button onclick="zoomTracker(1)" class="px-3 py-2 bg-slate-800 hover:bg-slate-700 text-xs font-bold rounded-xl transition text-amber-400" title="Zoom In">+</button>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Linked Telemetry Readout Header -->
-            <div class="grid grid-cols-1 md:grid-cols-4 gap-4 bg-slate-900/60 border border-slate-800 p-4 rounded-2xl text-xs">
-                <div><span class="text-slate-500 block uppercase">Route / Callsign</span><span id="tracker-route" class="font-bold text-amber-400">--</span></div>
-                <div><span class="text-slate-500 block uppercase">Telemetry Details</span><span id="tracker-details" class="font-semibold text-slate-200">--</span></div>
-                <div><span class="text-slate-500 block uppercase">Weather Conditions</span><span id="tracker-weather" class="font-semibold text-slate-200">--</span></div>
-                <div><span class="text-slate-500 block uppercase">Flight Status</span><span id="tracker-status" class="font-bold text-emerald-400">--</span></div>
-            </div>
-
-            <!-- Embedded Radar Frame Viewport -->
-            <div class="bg-slate-900 border border-slate-800 rounded-2xl overflow-hidden h-[600px] relative shadow-2xl">
-                <iframe id="live-radar-frame" class="w-full h-full border-0" allowfullscreen></iframe>
-            </div>
-        </div>
-
-        <!-- VIEW: GLOBAL HUBS DIRECTORY -->
-        <div id="view-directory" class="app-view hidden space-y-6">
-            <div class="space-y-1">
-                <h2 class="text-xl font-bold text-amber-400">Global Aviation Directory & Hubs</h2>
-                <p class="text-xs text-slate-400">Explore major international FBO handling facilities and private terminals.</p>
-            </div>
-            <div id="directory-content-list"></div>
-        </div>
-
-        <!-- VIEW: COMMUNITY HUB -->
-        <div id="view-community" class="app-view hidden space-y-6">
-            <div class="flex space-x-2 border-b border-slate-800 pb-4">
-                <button id="comm-tab-feed" onclick="switchCommunityTab('feed')" class="px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow">Community Feed</button>
-                <button id="comm-tab-blogs" onclick="switchCommunityTab('blogs')" class="px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200">Aviation Insights</button>
-            </div>
-
-            <div id="comm-content-feed" class="space-y-4">
-                <div class="bg-slate-900/80 border border-slate-800 p-5 rounded-2xl space-y-3">
-                    <textarea id="post-text-input" rows="3" placeholder="Share a flight log or aviation experience..." maxlength="1000" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-400 resize-none"></textarea>
-                    <div class="flex justify-between items-center">
-                        <span id="char-counter" class="text-[10px] text-slate-500 font-mono">0 / 1000</span>
-                        <button onclick="submitCommunityPost()" class="px-5 py-2 bg-amber-400 text-slate-950 font-bold text-xs rounded-xl hover:bg-amber-300 transition">Publish Log</button>
-                    </div>
-                </div>
-                <div id="community-posts-stream" class="space-y-4"></div>
-            </div>
-
-            <div id="comm-content-blogs" class="hidden space-y-4">
-                <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-2">
-                    <span class="text-[10px] text-amber-400 font-bold uppercase tracking-wider">Operational Guide</span>
-                    <h4 class="text-base font-bold text-slate-100">Navigating Transatlantic Private Corridors</h4>
-                    <p class="text-xs text-slate-300 leading-relaxed">An inside look at flight planning adjustments, North Atlantic Tracks (NAT), and real-time fuel burn calculations for ultra-long-range jets.</p>
-                </div>
-            </div>
-        </div>
-
-        <!-- VIEW: SECURE VAULT -->
-        <div id="view-vault" class="app-view hidden space-y-6">
-            <div id="vault-auth-screen" class="max-w-md mx-auto bg-slate-900/80 border border-slate-800 p-8 rounded-2xl text-center space-y-4 my-12">
-                <span class="text-3xl">🔐</span>
-                <h3 class="text-base font-bold text-slate-100">Restricted Operational Vault</h3>
-                <p class="text-xs text-slate-400">Enter your secure PIN to access encrypted logs and notes.</p>
-                <input type="password" id="vault-pin-input" placeholder="Enter Vault PIN" maxlength="6" class="w-full bg-slate-950 border border-slate-800 px-4 py-2.5 rounded-xl text-center text-sm font-mono tracking-widest text-slate-200 focus:outline-none focus:border-amber-400">
-                <button onclick="unlockVault()" class="w-full py-2.5 bg-amber-400 text-slate-950 font-bold text-xs rounded-xl hover:bg-amber-300 transition">Unlock Vault</button>
-            </div>
-
-            <div id="vault-content-panel" class="hidden space-y-6">
-                <div class="flex justify-between items-center bg-slate-900/80 border border-slate-800 p-4 rounded-2xl">
-                    <div class="flex items-center space-x-2"><span class="text-emerald-400">🟢</span><span class="text-xs font-bold text-slate-200">Vault Session Active</span></div>
-                    <button onclick="lockVault()" class="px-3 py-1.5 bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-bold rounded-xl hover:bg-rose-500/20 transition">Lock Vault</button>
-                </div>
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-4">
-                        <div class="flex justify-between items-center"><h4 class="text-xs font-bold text-amber-400 uppercase">Preferred Destinations</h4><button onclick="addVaultItem('destination')" class="text-xs font-bold text-slate-300 hover:text-amber-400">+ Add</button></div>
-                        <div id="vault-destinations-list" class="space-y-2 text-xs"></div>
-                    </div>
-                    <div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-4">
-                        <div class="flex justify-between items-center"><h4 class="text-xs font-bold text-amber-400 uppercase">Secure Notes</h4></div>
-                        <textarea rows="4" class="w-full bg-slate-950 border border-slate-800 rounded-xl p-3 text-xs text-slate-200 focus:outline-none focus:border-amber-400 resize-none" placeholder="Type confidential notes..."></textarea>
-                        <button onclick="saveSecureNote()" class="px-4 py-2 bg-amber-400 text-slate-950 font-bold text-xs rounded-xl hover:bg-amber-300 transition">Save Notes</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-    </main>
-
-    <!-- --- MOBILE NAVIGATION BAR --- -->
-    <nav class="md:hidden border-t border-slate-800 bg-slate-950/90 backdrop-blur fixed bottom-0 left-0 right-0 z-50 flex justify-around py-3">
-        <button onclick="switchView('home')" data-target="home" class="nav-link text-amber-400 text-xs font-bold">Home</button>
-        <button onclick="switchView('tracker')" data-target="tracker" class="nav-link text-slate-400 text-xs font-bold">Radar</button>
-        <button onclick="switchView('directory')" data-target="directory" class="nav-link text-slate-400 text-xs font-bold">Hubs</button>
-        <button onclick="switchView('community')" data-target="community" class="nav-link text-slate-400 text-xs font-bold">Feed</button>
-        <button onclick="switchView('vault')" data-target="vault" class="nav-link text-slate-400 text-xs font-bold">Vault</button>
-    </nav>
-
-    <script src="app.js"></script>
-</body>
-</html>
-
-2. app.js
 // --- SERVICE WORKER REGISTRATION ---
+
 if ('serviceWorker' in navigator) {
+
     window.addEventListener('load', () => {
+
         navigator.serviceWorker.register('/sw.js')
+
             .then(reg => console.log('Service Worker registered! Scope:', reg.scope))
+
             .catch(err => console.log('Service Worker registration failed:', err));
+
     });
+
 }
+
+
 
 // --- SINGLE-PAGE VIEW SWITCHING ENGINE ---
+
 function switchView(viewId, updateHistory = true) {
+
     document.querySelectorAll('.app-view').forEach(view => {
+
         view.classList.add('hidden');
+
     });
+
+
 
     const targetView = document.getElementById(`view-${viewId}`);
+
     if (targetView) {
+
         targetView.classList.remove('hidden');
+
     }
+
+
 
     document.querySelectorAll('.nav-link').forEach(btn => {
+
         if (btn.getAttribute('data-target') === viewId) {
+
             btn.classList.remove('text-slate-400');
-            btn.classList.add('text-amber-400', 'bg-slate-800/60', 'border', 'border-slate-700');
+
+            btn.classList.add('text-amber-400');
+
+            btn.classList.add('bg-slate-800/60', 'border', 'border-slate-700');
+
         } else {
+
             btn.classList.remove('text-amber-400', 'bg-slate-800/60', 'border', 'border-slate-700');
+
             btn.classList.add('text-slate-400');
+
         }
+
     });
 
+
+
     if (updateHistory) {
+
         history.pushState({ view: viewId }, "", `#${viewId}`);
+
     }
+
 }
 
+
+
 window.addEventListener('popstate', (event) => {
+
     if (event.state && event.state.view) {
+
         switchView(event.state.view, false);
+
     } else {
+
         switchView('home', false);
+
     }
+
 });
+
+
+
 
 
 // --- GLOBAL AVIATION DATABASE & DIRECTORY ---
+
 const aviationDatabase = [
+
     {
+
         continent: "North America",
+
         countries: [
+
             {
+
                 name: "United States",
+
                 flag: "🇺🇸",
+
                 cities: [
+
                     { name: "New York", hubs: ["Teterboro (TEB)", "White Plains (HPN)", "JFK"] },
+
                     { name: "Los Angeles", hubs: ["Van Nuys (VNY)", "Los Angeles Int (LAX)", "Burbank (BUR)"] },
-                    { name: "Miami", hubs: ["Miami Opa-locka (OPF)", "Miami International (MIA)", "Fort Lauderdale (FXE)"] }
+
+                    { name: "Miami", hubs: ["Miami Opa-locka (OPF)", "Miami International (MIA)", "Fort Lauderdale (FXE)"] },
+
+                    { name: "Chicago", hubs: ["Chicago Midway (MDW)", "Chicago Executive (PWK)"] }
+
                 ]
+
             },
+
             {
+
                 name: "Canada",
+
                 flag: "🇨🇦",
+
                 cities: [
+
                     { name: "Toronto", hubs: ["Toronto Pearson (YYZ)", "Billy Bishop (YTZ)"] },
+
                     { name: "Vancouver", hubs: ["Vancouver International (YVR)"] }
+
                 ]
+
             }
+
         ]
+
     },
+
     {
+
         continent: "Europe",
+
         countries: [
+
             {
+
                 name: "United Kingdom",
+
                 flag: "🇬🇧",
+
                 cities: [
+
                     { name: "London", hubs: ["Farnborough (EGLF)", "London Biggin Hill (BQH)", "London Luton (LTN)"] }
+
                 ]
+
             },
+
             {
-                name: "Switzerland",
-                flag: "🇨🇭",
+
+                name: "France",
+
+                flag: "🇫🇷",
+
                 cities: [
-                    { name: "Geneva", hubs: ["Geneva International (GVA)"] },
-                    { name: "Zurich", hubs: ["Zurich Airport (ZRH)"] }
+
+                    { name: "Paris", hubs: ["Le Bourget (LBG)", "Charles de Gaulle (CDG)"] },
+
+                    { name: "Nice", hubs: ["Nice Côte d'Azur (NCE)"] }
+
                 ]
+
+            },
+
+            {
+
+                name: "Switzerland",
+
+                flag: "🇨🇭",
+
+                cities: [
+
+                    { name: "Geneva", hubs: ["Geneva International (GVA)"] },
+
+                    { name: "Zurich", hubs: ["Zurich Airport (ZRH)"] }
+
+                ]
+
             }
+
         ]
+
+    },
+
+    {
+
+        continent: "Asia",
+
+        countries: [
+
+            {
+
+                name: "United Arab Emirates",
+
+                flag: "🇦🇪",
+
+                cities: [
+
+                    { name: "Dubai", hubs: ["Dubai International (DXB)", "Al Maktoum International (DWC)", "Dubai Executive Flight Center"] }
+
+                ]
+
+            },
+
+            {
+
+                name: "Singapore",
+
+                flag: "🇸🇬",
+
+                cities: [
+
+                    { name: "Singapore", hubs: ["Seletar Airport (XSP)", "Changi Airport (SIN)"] }
+
+                ]
+
+            },
+
+            {
+
+                name: "Japan",
+
+                flag: "🇯🇵",
+
+                cities: [
+
+                    { name: "Tokyo", hubs: ["Haneda (HND)", "Narita (NRT)"] }
+
+                ]
+
+            }
+
+        ]
+
+    },
+
+    {
+
+        continent: "Oceania",
+
+        countries: [
+
+            {
+
+                name: "Australia",
+
+                flag: "🇦🇺",
+
+                cities: [
+
+                    { name: "Sydney", hubs: ["Sydney Kingsford Smith (SYD)"] },
+
+                    { name: "Melbourne", hubs: ["Melbourne Airport (MEL)", "Essendon Fields (MEB)"] }
+
+                ]
+
+            }
+
+        ]
+
+    },
+
+    {
+
+        continent: "South America",
+
+        countries: [
+
+            {
+
+                name: "Brazil",
+
+                flag: "🇧🇷",
+
+                cities: [
+
+                    { name: "São Paulo", hubs: ["Congonhas (CGH)", "Guarulhos (GRU)"] }
+
+                ]
+
+            }
+
+        ]
+
+    },
+
+    {
+
+        continent: "Africa",
+
+        countries: [
+
+            {
+
+                name: "South Africa",
+
+                flag: "🇿🇦",
+
+                cities: [
+
+                    { name: "Johannesburg", hubs: ["O.R. Tambo (JNB)", "Lanseria International (HLA)"] }
+
+                ]
+
+            }
+
+        ]
+
     }
+
 ];
 
+
+
 let selectedContinentIndex = null;
+
 let selectedCountryIndex = null;
 
+
+
 function renderAviationDirectory() {
+
     const container = document.getElementById('directory-content-list');
+
     if (!container) return;
 
-    let html = `<div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">`;
+
+
+    let html = `<div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">`;
+
+    
+
     aviationDatabase.forEach((cont, cIndex) => {
+
         const isSelected = selectedContinentIndex === cIndex;
+
         html += `
+
             <button onclick="selectContinent(${cIndex})" class="p-4 rounded-xl border text-left transition font-semibold flex justify-between items-center ${isSelected ? 'bg-amber-500 text-slate-950 border-amber-400 shadow-lg' : 'bg-slate-900/80 border-slate-800 text-slate-200 hover:border-slate-700'}">
+
                 <span>${cont.continent}</span>
+
                 <span class="text-xs px-2 py-1 rounded ${isSelected ? 'bg-slate-950/20 text-slate-950' : 'bg-slate-800 text-amber-400'}">${cont.countries.length} Countries</span>
+
             </button>
+
         `;
+
     });
+
     html += `</div>`;
 
+
+
     if (selectedContinentIndex !== null) {
+
         const activeContinent = aviationDatabase[selectedContinentIndex];
+
         html += `<div class="bg-slate-900/60 border border-slate-800 p-6 rounded-2xl space-y-4 mb-6">`;
+
         html += `<h3 class="text-xl font-bold text-amber-400 border-b border-slate-800 pb-3">${activeContinent.continent} — Select Country</h3>`;
+
         html += `<div class="flex flex-wrap gap-3">`;
 
+
+
         activeContinent.countries.forEach((country, coIndex) => {
+
             const isCountrySelected = selectedCountryIndex === coIndex;
+
             html += `
+
                 <button onclick="selectCountry(${coIndex})" class="px-5 py-2.5 rounded-xl border text-sm font-medium transition flex items-center space-x-2 ${isCountrySelected ? 'bg-amber-400 text-slate-950 border-amber-300 font-bold shadow' : 'bg-slate-950/80 border-slate-800 text-slate-300 hover:border-slate-700'}">
+
                     <span class="text-lg">${country.flag}</span>
+
                     <span>${country.name}</span>
+
                 </button>
+
             `;
+
         });
+
         html += `</div></div>`;
+
     }
+
+
 
     if (selectedContinentIndex !== null && selectedCountryIndex !== null) {
+
         const activeCountry = aviationDatabase[selectedContinentIndex].countries[selectedCountryIndex];
+
         html += `<div class="bg-slate-950/80 border border-slate-800 p-6 rounded-2xl space-y-4">`;
+
         html += `<h3 class="text-lg font-semibold text-amber-300 flex items-center space-x-2"><span class="text-xl">${activeCountry.flag}</span><span>${activeCountry.name} — Major Private Aviation Hubs</span></h3>`;
+
         html += `<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">`;
 
+
+
         activeCountry.cities.forEach(city => {
+
             html += `
+
                 <div class="bg-slate-900/90 border border-slate-800 p-4 rounded-xl space-y-2">
+
                     <h4 class="font-bold text-amber-400 text-base">${city.name}</h4>
+
                     <p class="text-xs text-slate-400 uppercase tracking-wider">Handling Hubs / FBOs:</p>
+
                     <ul class="text-xs space-y-1 text-slate-300">
+
             `;
+
             city.hubs.forEach(hub => {
+
                 html += `<li class="flex items-center space-x-2"><span class="w-1.5 h-1.5 bg-amber-400 rounded-full"></span><span>${hub}</span></li>`;
+
             });
+
             html += `</ul></div>`;
+
         });
+
+
+
         html += `</div></div>`;
+
     }
 
+
+
     container.innerHTML = html;
+
 }
+
+
 
 function selectContinent(index) {
+
     selectedContinentIndex = index;
+
     selectedCountryIndex = null;
+
     renderAviationDirectory();
+
 }
 
+
+
 function selectCountry(index) {
+
     selectedCountryIndex = index;
+
     renderAviationDirectory();
+
 }
+
+
+
 
 
 // --- COMMUNITY HUB CONTROLLERS ---
+
 function switchCommunityTab(tabName) {
+
     const feedTab = document.getElementById('comm-tab-feed');
+
     const blogsTab = document.getElementById('comm-tab-blogs');
+
     const feedContent = document.getElementById('comm-content-feed');
+
     const blogsContent = document.getElementById('comm-content-blogs');
 
+
+
     if (tabName === 'feed') {
+
         feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
+
         blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
+
         feedContent.classList.remove('hidden');
+
         blogsContent.classList.add('hidden');
+
     } else {
+
         blogsTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition bg-amber-400 text-slate-950 shadow";
+
         feedTab.className = "px-4 py-2 rounded-lg text-xs font-bold transition text-slate-400 hover:text-slate-200";
+
         blogsContent.classList.remove('hidden');
+
         feedContent.classList.add('hidden');
+
     }
+
 }
+
+
 
 document.addEventListener('DOMContentLoaded', () => {
+
     const postInput = document.getElementById('post-text-input');
+
     const charCounter = document.getElementById('char-counter');
 
+
+
     if (postInput && charCounter) {
+
         postInput.addEventListener('input', () => {
+
             const length = postInput.value.length;
+
             charCounter.textContent = `${length} / 1000`;
+
+            if (length > 900) {
+
+                charCounter.className = "text-[10px] text-rose-400 font-mono font-bold";
+
+            } else {
+
+                charCounter.className = "text-[10px] text-slate-500 font-mono";
+
+            }
+
         });
+
     }
+
 });
 
+
+
 function submitCommunityPost() {
+
     const textInput = document.getElementById('post-text-input');
+
     if (!textInput) return;
+
     const content = textInput.value.trim();
 
+
+
     if (!content) {
+
         alert("Please write a short story or description before publishing.");
+
         return;
+
     }
 
+
+
+    if (content.length > 1000) {
+
+        alert("Short stories must be 1,000 characters or less.");
+
+        return;
+
+    }
+
+
+
     const stream = document.getElementById('community-posts-stream');
+
     const newPostHTML = `
-        <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3">
+
+        <div class="bg-slate-900/60 border border-slate-800 p-5 rounded-2xl space-y-3 animate-fade-in">
+
             <div class="flex items-center justify-between">
+
                 <div class="flex items-center space-x-3">
+
                     <div class="w-8 h-8 rounded-full bg-amber-400/20 border border-amber-400/40 flex items-center justify-center font-bold text-amber-400 text-xs">S</div>
+
                     <div>
+
                         <h5 class="text-xs font-bold text-slate-200">Skylevel Member</h5>
+
                         <span class="text-[10px] text-slate-500">Just now • Public Log</span>
+
                     </div>
+
                 </div>
+
+                <button class="text-xs text-amber-400 font-bold px-3 py-1 bg-amber-400/10 rounded-lg hover:bg-amber-400/20 transition">Subscribed</button>
+
             </div>
+
             <p class="text-xs text-slate-300 leading-relaxed">${escapeHtml(content)}</p>
+
+            <div class="flex items-center space-x-6 pt-2 border-t border-slate-800/60 text-xs text-slate-400">
+
+                <button onclick="toggleLike(this)" class="flex items-center space-x-1.5 hover:text-amber-400 transition">
+
+                    <span>❤️</span> <span class="font-bold text-slate-200">1</span> Like
+
+                </button>
+
+                <button class="flex items-center space-x-1.5 hover:text-amber-400 transition">
+
+                    <span>💬</span> <span class="font-bold text-slate-200">0</span> Comments
+
+                </button>
+
+            </div>
+
         </div>
+
     `;
 
+
+
     stream.insertAdjacentHTML('afterbegin', newPostHTML);
+
     textInput.value = '';
+
     document.getElementById('char-counter').textContent = '0 / 1000';
+
     alert("Your experience was published to the community feed!");
+
 }
 
-function escapeHtml(text) {
-    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+
+function toggleLike(btn) {
+
+    const countSpan = btn.querySelector('span.font-bold');
+
+    let currentLikes = parseInt(countSpan.textContent);
+
+    countSpan.textContent = currentLikes + 1;
+
+    btn.classList.add('text-rose-400');
+
 }
+
+
+
+function escapeHtml(text) {
+
+    return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
+
+}
+
+
+
 
 
 // --- SECURE VAULT CONTROLLERS ---
+
 function unlockVault() {
+
     const pinInput = document.getElementById('vault-pin-input');
+
     if (pinInput && pinInput.value.length >= 4) {
+
         document.getElementById('vault-auth-screen').classList.add('hidden');
+
         document.getElementById('vault-content-panel').classList.remove('hidden');
+
         pinInput.value = '';
+
     } else {
+
         alert("Please enter a valid secure vault PIN (at least 4 digits).");
+
     }
+
 }
+
+
 
 function lockVault() {
+
     document.getElementById('vault-content-panel').classList.add('hidden');
+
     document.getElementById('vault-auth-screen').classList.remove('hidden');
+
 }
+
+
 
 function addVaultItem(type) {
+
     const name = prompt(`Enter new secure ${type} item name:`);
+
     if (!name) return;
 
+
+
     const listId = type === 'destination' ? 'vault-destinations-list' : 'vault-catering-list';
+
     const container = document.getElementById(listId);
 
+
+
     if (container) {
+
         const itemHTML = `
+
             <div class="bg-slate-950 p-3 rounded-xl border border-slate-800 flex justify-between items-center">
+
                 <span>${escapeHtml(name)}</span>
+
                 <button onclick="this.parentElement.remove()" class="text-slate-500 hover:text-rose-400">×</button>
+
             </div>
+
         `;
+
         container.insertAdjacentHTML('beforeend', itemHTML);
+
     }
+
 }
+
+
 
 function saveSecureNote() {
+
     alert("Secure notes successfully encrypted and saved to local vault storage.");
+
 }
 
 
-// --- LIVE FLIGHT TRACKER ENGINE (FULLY RANDOMIZED INITIALIZER & TELEMETRY LINK) ---
+
+
+
+// --- LIVE FLIGHT TRACKER ENGINE (LINKED TELEMETRY & FAST-ZOOM VIEWPORT) ---
 
 let flightTimer = null;
-let currentZoomLevel = 5; 
+
+let currentZoomLevel = 5; // Default zoomed out overview state
+
 let currentTrackedFlight = {
+
     callsign: "N750EX",
+
     route: "EGLF ✈️ LSGG",
+
     details: "Farnborough to Geneva • FL430 • Mach 0.82",
+
     weather: "CAVOK 18°C",
-    status: "On Schedule",
+
+    status: "On Schedule (-2m)",
+
     altitude: 43000,
+
     groundSpeed: 485
+
 };
 
-// Expanded pool of active global registrations to guarantee a new random flight on every page load
+
+
 const randomFlightPool = [
-    { callsign: "N750EX", route: "EGLF ✈️ LSGG", details: "Farnborough to Geneva • FL430 • Mach 0.82", weather: "CAVOK 18°C", status: "On Schedule", alt: 43000, gs: 485 },
+
+    { callsign: "N750EX", route: "EGLF ✈️ LSGG", details: "Farnborough to Geneva • FL430 • Mach 0.82", weather: "CAVOK 18°C", status: "On Schedule (-2m)", alt: 43000, gs: 485 },
+
     { callsign: "G-VIPX", route: "EGGW ✈️ LFMD", details: "Luton to Cannes Mandelieu • FL370 • Mach 0.78", weather: "SCT030 21°C", status: "On Time", alt: 37000, gs: 450 },
+
     { callsign: "N888Z", route: "KTEB ✈️ KPBI", details: "Teterboro to Palm Beach • FL410 • Mach 0.80", weather: "FEW025 28°C", status: "Airborne", alt: 41000, gs: 468 },
+
     { callsign: "A6-REG", route: "OMDB ✈️ OMDW", details: "Dubai to Al Maktoum • FL350 • Mach 0.76", weather: "CAVOK 36°C", status: "Climbing", alt: 35000, gs: 430 },
-    { callsign: "HB-JIV", route: "LSZH ✈️ KJFK", details: "Zurich to New York JFK • FL390 • Mach 0.84", weather: "BKN015 12°C", status: "On Schedule", alt: 39000, gs: 510 },
-    { callsign: "N450GA", route: "KHOU ✈️ KVNY", details: "Houston to Van Nuys • FL400 • Mach 0.81", weather: "CAVOK 24°C", status: "En Route", alt: 40000, gs: 472 },
-    { callsign: "C-GXYZ", route: "CYYZ ✈️ CYVR", details: "Toronto to Vancouver • FL360 • Mach 0.79", weather: "SCT020 9°C", status: "On Time", alt: 36000, gs: 445 },
-    { callsign: "PH-EAN", route: "EHAM ✈️ LFPG", details: "Amsterdam to Paris • FL280 • Mach 0.72", weather: "BKN012 14°C", status: "Descent", alt: 28000, gs: 380 }
+
+    { callsign: "HB-JIV", route: "LSZH ✈️ KJFK", details: "Zurich to New York JFK • FL390 • Mach 0.84", weather: "BKN015 12°C", status: "On Schedule", alt: 39000, gs: 510 }
+
 ];
 
+
+
 function initFlightTracker() {
-    // 1. Truly randomize the initial selection on every fresh page load/visit
+
+    // 1. Randomly pick a flight profile on load and sync telemetry header data
     const randomIndex = Math.floor(Math.random() * randomFlightPool.length);
+
     const chosen = randomFlightPool[randomIndex];
+
     
+
     currentTrackedFlight = {
+
         callsign: chosen.callsign,
+
         route: chosen.route,
+
         details: chosen.details,
+
         weather: chosen.weather,
+
         status: chosen.status,
+
         altitude: chosen.alt,
+
         groundSpeed: chosen.gs
+
     };
 
     updateFlightUI();
-    updateHomeFlightFollower(currentTrackedFlight);
+
     reloadRadarFrame();
+
+
 
     // 2. Handle manual search registration/callsign input updates
+
     const trackButton = document.getElementById('track-btn');
+
     const searchInput = document.getElementById('flight-search-input');
 
+
+
     if (trackButton && searchInput) {
+
         trackButton.addEventListener('click', () => {
+
             const query = searchInput.value.trim();
+
             if (query) {
+
                 const upperQuery = query.toUpperCase();
+
                 
+
+                // Link telemetry data to the searched registration/callsign
+
                 currentTrackedFlight.callsign = upperQuery;
+
                 currentTrackedFlight.route = `${upperQuery} ✈️ Destination Hub`;
-                currentTrackedFlight.details = `Custom Search Sync • FL390 • Mach 0.80`;
+
+                currentTrackedFlight.details = `Live Registration Sync • FL390 • Mach 0.80`;
+
                 currentTrackedFlight.weather = `Synced OK`;
-                currentTrackedFlight.status = `Live Tracking`;
-                
+
+                currentTrackedFlight.status = `Active Track`;
+
                 updateFlightUI();
-                updateHomeFlightFollower(currentTrackedFlight);
+
+                
+
+                // Lock radar frame onto the searched flight while maintaining zoom preference
+
                 reloadRadarFrame();
+
             }
+
         });
+
     }
+
+
 
     startFlightPolling();
+
     window.addEventListener('online', handleNetworkChange);
+
     window.addEventListener('offline', handleNetworkChange);
+
     handleNetworkChange(); 
+
 }
+
+
 
 function reloadRadarFrame() {
+
     const radarFrame = document.getElementById('live-radar-frame');
+
     if (radarFrame) {
+
         const callsign = encodeURIComponent(currentTrackedFlight.callsign);
+
+        // Optimized URL parameters for fast loading and full zoom responsiveness
+
         radarFrame.src = `https://globe.adsbexchange.com/?kiosk&zoom=${currentZoomLevel}&icao=${callsign}&sel=${callsign}`;
+
     }
+
 }
+
+
 
 function zoomTracker(delta) {
+
+    // Adjust zoom level bounds between 3 (zoomed out continent view) and 12 (tight airport view)
+
     currentZoomLevel = Math.max(3, Math.min(12, currentZoomLevel + delta));
+
     reloadRadarFrame();
+
 }
+
+
 
 function startFlightPolling() {
+
     if (flightTimer) clearInterval(flightTimer);
 
+
+
     flightTimer = setInterval(() => {
+
         if (navigator.onLine) {
+
             fetchLiveFlightData();
+
+        } else {
+
+            console.log("Device offline: Live flight updates paused.");
+
         }
+
     }, 30000);
+
 }
+
+
 
 function fetchLiveFlightData() {
+
     currentTrackedFlight.altitude += Math.floor(Math.random() * 200) - 100;
+
     currentTrackedFlight.groundSpeed += Math.floor(Math.random() * 10) - 5;
+
     updateFlightUI();
+
 }
 
+
+
 function handleNetworkChange() {
+
     const statusIndicator = document.getElementById('network-status-indicator');
+
     const statusText = document.getElementById('network-status-text');
+
+
 
     if (!statusIndicator || !statusText) return;
 
+
+
     if (navigator.onLine) {
+
         statusIndicator.className = "w-3 h-3 rounded-full bg-emerald-500 animate-pulse";
+
         statusText.textContent = "Live Updates Active";
+
     } else {
+
         statusIndicator.className = "w-3 h-3 rounded-full bg-amber-500";
+
         statusText.textContent = "Offline Mode";
+
     }
+
 }
+
+
 
 function updateFlightUI() {
+
     const routeEl = document.getElementById('tracker-route');
+
     const detailsEl = document.getElementById('tracker-details');
+
     const weatherEl = document.getElementById('tracker-weather');
+
     const statusEl = document.getElementById('tracker-status');
 
+
+
     if (routeEl) routeEl.textContent = `${currentTrackedFlight.callsign} : ${currentTrackedFlight.route}`;
+
     if (detailsEl) detailsEl.textContent = `${currentTrackedFlight.details} | Alt: ${currentTrackedFlight.altitude}ft | GS: ${currentTrackedFlight.groundSpeed}kts`;
+
     if (weatherEl) weatherEl.textContent = currentTrackedFlight.weather;
+
     if (statusEl) statusEl.textContent = currentTrackedFlight.status;
+
 }
 
 
-// --- HOME PAGE FLIGHT FOLLOWER & CUSTOMIZATION CONTROLLER ---
-function updateHomeFlightFollower(flightData) {
-    const callsignEl = document.getElementById('home-follower-callsign');
-    const routeEl = document.getElementById('home-follower-route');
-    const statusEl = document.getElementById('home-follower-status');
 
-    if (callsignEl) callsignEl.textContent = flightData.callsign;
-    if (routeEl) routeEl.textContent = flightData.route;
-    if (statusEl) statusEl.textContent = `${flightData.status} • Alt: ${flightData.altitude}ft`;
-}
-
-function openFlightCustomizationModal() {
-    const newCallsign = prompt("Enter your custom flight callsign or registration to follow (e.g., N123AB):", currentTrackedFlight.callsign);
-    if (!newCallsign) return;
-
-    const newRoute = prompt("Enter your custom route (e.g., KTEB ✈️ MYNN):", currentTrackedFlight.route);
-    const customStatus = prompt("Enter custom status/notes for your followers:", "En route • VIP Charter");
-
-    currentTrackedFlight.callsign = newCallsign.toUpperCase();
-    if (newRoute) currentTrackedFlight.route = newRoute;
-    if (customStatus) currentTrackedFlight.status = customStatus;
-
-    updateFlightUI();
-    reloadRadarFrame();
-    updateHomeFlightFollower(currentTrackedFlight);
-
-    alert("Your flight follower profile has been successfully updated!");
-}
 
 
 // --- AUTOMATED GLOBAL CLOCK & TIME ZONES ---
+
 const targetTimeZones = [
+
     { label: "UTC", zone: "UTC" },
+
     { label: "London (LHR)", zone: "Europe/London" },
+
     { label: "New York (JFK)", zone: "America/New_York" },
+
     { label: "Dubai (DXB)", zone: "Asia/Dubai" },
+
     { label: "Singapore (SIN)", zone: "Asia/Singapore" }
+
 ];
+
+
 
 let currentTimeZoneIndex = 0;
 
+
+
 function initGlobalClocks() {
+
     updateClocks();
+
     setInterval(updateClocks, 1000);
 
+
+
     setInterval(() => {
+
         currentTimeZoneIndex = (currentTimeZoneIndex + 1) % targetTimeZones.length;
+
         updateRotatingTimeZone();
+
     }, 5000);
+
 }
+
+
 
 function updateClocks() {
+
     const now = new Date();
+
     const utcEl = document.getElementById('header-utc-clock');
+
     if (utcEl) {
+
         utcEl.textContent = now.toLocaleTimeString('en-US', { timeZone: 'UTC', hour12: false }) + " UTC";
+
     }
+
     updateRotatingTimeZone(now);
+
 }
 
+
+
 function updateRotatingTimeZone(now = new Date()) {
+
     const tzData = targetTimeZones[currentTimeZoneIndex];
+
     const rotatingEl = document.getElementById('rotating-timezone-widget');
+
     if (rotatingEl) {
+
         const timeString = now.toLocaleTimeString('en-US', { timeZone: tzData.zone, hour: '2-digit', minute: '2-digit', hour12: false });
+
         rotatingEl.innerHTML = `<span class="text-slate-400 text-xs">${tzData.label}:</span> <span class="text-amber-400 font-bold">${timeString}</span>`;
+
     }
+
 }
+
+
+
 
 
 // --- AUTOMATED 10-DAY WEATHER FORECAST WIDGET ---
+
 const weatherLocations = [
+
     { name: "London / Farnborough (EGLF)", lat: 51.275, lon: -0.776 },
+
     { name: "New York (TEB / JFK)", lat: 40.7128, lon: -74.0060 },
-    { name: "Geneva (LSGG)", lat: 46.2372, lon: 6.109 }
+
+    { name: "Geneva (LSGG)", lat: 46.2372, lon: 6.109 },
+
+    { name: "Dubai (DXB)", lat: 25.2048, lon: 55.2708 }
+
 ];
+
+
 
 let currentWeatherLocationIndex = 0;
 
+
+
 async function initAutomatedWeather() {
+
     fetchWeatherForCurrentLocation();
 
+
+
     setInterval(() => {
+
         currentWeatherLocationIndex = (currentWeatherLocationIndex + 1) % weatherLocations.length;
+
         fetchWeatherForCurrentLocation();
+
     }, 10000);
+
 }
+
+
 
 async function fetchWeatherForCurrentLocation() {
+
     const loc = weatherLocations[currentWeatherLocationIndex];
+
     const container = document.getElementById('automated-weather-widget');
+
     if (!container) return;
 
+
+
     try {
+
         const response = await fetch(`https://api.open-meteo.com/v1/forecast?latitude=${loc.lat}&longitude=${loc.lon}&current=temperature_2m,weather_code&daily=temperature_2m_max,temperature_2m_min,weather_code&timezone=auto`);
+
         const data = await response.json();
 
+
+
         let html = `
+
             <div class="flex items-center justify-between border-b border-slate-800 pb-3">
+
                 <div>
+
                     <span class="text-xs font-bold text-amber-400 uppercase tracking-wider">Live Automated Weather</span>
+
                     <h4 class="text-sm font-bold text-slate-100">${loc.name}</h4>
+
                 </div>
+
                 <div class="text-right">
+
                     <span class="text-2xl font-extrabold text-slate-100">${data.current.temperature_2m}°C</span>
+
                 </div>
+
             </div>
+
             <div class="pt-2">
+
                 <p class="text-xs text-slate-400 mb-2 font-semibold uppercase tracking-wider">10-Day Automated Forecast Preview:</p>
+
                 <div class="grid grid-cols-5 gap-2 text-center">
+
         `;
 
+
+
         for (let i = 0; i < 5; i++) {
+
             const date = new Date(data.daily.time[i]).toLocaleDateString('en-US', { weekday: 'short' });
+
             const maxTemp = Math.round(data.daily.temperature_2m_max[i]);
+
             const minTemp = Math.round(data.daily.temperature_2m_min[i]);
 
+
+
             html += `
+
                 <div class="bg-slate-950/60 p-2 rounded-xl border border-slate-800/60">
+
                     <div class="text-[10px] text-slate-400 font-bold">${date}</div>
+
                     <div class="text-xs font-bold text-slate-200 mt-1">${maxTemp}°</div>
+
                     <div class="text-[10px] text-slate-500">${minTemp}°</div>
+
                 </div>
+
             `;
+
         }
 
+
+
         html += `</div></div>`;
+
         container.innerHTML = html;
 
+
+
     } catch (error) {
-        console.error("Weather fetch failed:", error);
+
+        console.error("Weather fetch failed (Offline mode active):", error);
+
         container.innerHTML = `<div class="text-xs text-amber-400 p-4">Weather data cached / Offline mode active.</div>`;
+
     }
+
 }
+
+
+
 
 
 // --- INITIALIZATION HOOK ---
-document.addEventListener('DOMContentLoaded', () => {
-    renderAviationDirectory();
-    initFlightTracker();
-    initGlobalClocks();
-    initAutomatedWeather();
-});
 
+document.addEventListener('DOMContentLoaded', () => {
+
+    renderAviationDirectory();
+
+    initFlightTracker();
+
+    initGlobalClocks();
+
+    initAutomatedWeather();
+
+});
