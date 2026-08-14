@@ -1,5 +1,3 @@
-Here are your fully updated and integrated index.html and app.js files containing the randomized initial flight picker, synchronized telemetry readouts, easier map zoom controls, and the Home Page Flight Follower customization widget.
-1. index.html
 <!DOCTYPE html>
 <html lang="en" class="dark">
 <head>
